@@ -145,17 +145,33 @@ export function drawTreeCanopy(ctx: Ctx, x: number, y: number, r: number) {
   pcircle(ctx, gx - Math.round(gr * 0.05), gy - Math.round(gr * 0.25), Math.max(1, Math.round(gr * 0.12)), HIGH);
 }
 
+// GBA-style park bench — wooden slats with brighter highlight band,
+// darker shadow at the base, and visible metal legs at the ends.
 export function drawBench(ctx: Ctx, x: number, y: number, w: number) {
   const gx = x / PX, gy = y / PX, gw = w / PX;
-  prect(ctx, gx + 1, gy + 1, gw, 5, "rgba(0,0,0,0.3)");
-  prect(ctx, gx, gy, gw, 5, "#7a4a22");
-  prect(ctx, gx, gy, gw, 1, "#5a3a1a");
-  prect(ctx, gx, gy + 4, gw, 1, "#5a3a1a");
-  prect(ctx, gx, gy, 1, 5, "#1a1a1a");
-  prect(ctx, gx + gw - 1, gy, 1, 5, "#1a1a1a");
-  // legs
-  prect(ctx, gx + 1, gy + 5, 1, 1, "#3a3a3a");
-  prect(ctx, gx + gw - 2, gy + 5, 1, 1, "#3a3a3a");
+  const OUTLINE = "#1a1a1a";
+  const WOOD = "#9a6a32";
+  const WOOD_DARK = "#5a3a1a";
+  const WOOD_LIGHT = "#c89a5a";
+
+  // shadow
+  prect(ctx, gx + 1, gy + 5, gw, 1, "rgba(0,0,0,0.4)");
+  // main slat body
+  prect(ctx, gx, gy, gw, 5, WOOD);
+  // top highlight band
+  prect(ctx, gx + 1, gy + 1, gw - 2, 1, WOOD_LIGHT);
+  // slat divider
+  prect(ctx, gx, gy + 2, gw, 1, WOOD_DARK);
+  // bottom edge
+  prect(ctx, gx, gy + 4, gw, 1, WOOD_DARK);
+  // outline (all sides)
+  prect(ctx, gx, gy, gw, 1, OUTLINE);
+  prect(ctx, gx, gy + 4, gw, 1, OUTLINE);
+  prect(ctx, gx - 1, gy, 1, 5, OUTLINE);
+  prect(ctx, gx + gw, gy, 1, 5, OUTLINE);
+  // metal legs (poking down at ends)
+  prect(ctx, gx + 1, gy + 5, 1, 2, OUTLINE);
+  prect(ctx, gx + gw - 2, gy + 5, 1, 2, OUTLINE);
 }
 
 // GBA-style hedge — bumpy rounded top (looks like a row of bushes) with
@@ -196,15 +212,39 @@ export function drawHedge(ctx: Ctx, x: number, y: number, w: number, h: number) 
   prect(ctx, gx + gw, gy + 1, 1, gh - 1, OUTLINE);
 }
 
+// GBA-style fountain — stone basin with dark outline, blue water, white
+// foam ring around the central spout. Reads as a town-square fountain.
 export function drawFountain(ctx: Ctx, x: number, y: number, r: number) {
   const gx = x / PX, gy = y / PX, gr = r / PX;
-  pcircle(ctx, gx + 1, gy + 1, gr, "rgba(0,0,0,0.35)");
-  pcircle(ctx, gx, gy, gr, "#bcbcc4");
-  pcircle(ctx, gx, gy, Math.max(2, gr - 2), "#5aa6e8");
-  pcircle(ctx, gx - 1, gy - 1, Math.max(1, Math.round(gr * 0.4)), "#a8d8ff");
-  pcircle(ctx, gx, gy, 2, "#dcdce4");
-  pset(ctx, gx, gy - 3, "#fff");
-  pset(ctx, gx + 2, gy - 2, "#fff");
+  const OUTLINE = "#1a1a1a";
+  const STONE = "#bcbcc4";
+  const STONE_DARK = "#7a7a84";
+  const WATER = "#3a8ad8";
+  const WATER_LIGHT = "#7ac2ee";
+  const FOAM = "#ffffff";
+
+  // shadow under basin
+  pcircle(ctx, gx + 1, gy + 2, gr, "rgba(0,0,0,0.35)");
+  // outer stone ring (outline)
+  pcircle(ctx, gx, gy, gr + 1, OUTLINE);
+  pcircle(ctx, gx, gy, gr, STONE);
+  // darker bottom-right stone shading
+  pcircle(ctx, gx + 1, gy + 1, gr, STONE_DARK);
+  pcircle(ctx, gx, gy, gr - 1, STONE);
+  // water rim outline
+  pcircle(ctx, gx, gy, gr - 1, OUTLINE);
+  pcircle(ctx, gx, gy, gr - 2, WATER);
+  // water highlight (top-left lighter band)
+  pcircle(ctx, gx - 1, gy - 1, Math.max(1, Math.round(gr * 0.55)), WATER_LIGHT);
+  // central spout (stone column)
+  pcircle(ctx, gx, gy, Math.max(2, Math.round(gr * 0.25)), OUTLINE);
+  pcircle(ctx, gx, gy, Math.max(1, Math.round(gr * 0.18)), STONE);
+  // foam splash dots around spout
+  pset(ctx, gx, gy - 3, FOAM);
+  pset(ctx, gx + 2, gy - 2, FOAM);
+  pset(ctx, gx - 2, gy + 1, FOAM);
+  pset(ctx, gx + 2, gy + 2, FOAM);
+  pset(ctx, gx - 2, gy - 1, FOAM);
 }
 
 export function drawKiosk(ctx: Ctx, x: number, y: number, w: number, h: number, color: string) {
