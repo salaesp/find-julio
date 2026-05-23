@@ -173,7 +173,7 @@ export default function WelcomeScreen({ onStart }: { onStart: (startWorld?: numb
       // ── Pixel title (capped width + height so doesn't blow up on wide screens) ──
       const maxLineW = Math.min(w * 0.85, 520);
       const smallTitleH = Math.min(h * 0.06, 44);
-      drawPixelText(ctx, "DONDE ESTA", w / 2, h * 0.06, "#ffffff", "#1a1a1a", smallTitleH, maxLineW);
+      drawPixelText(ctx, "DONDE ESTÁ", w / 2, h * 0.06, "#ffffff", "#1a1a1a", smallTitleH, maxLineW);
       const bigTitleH = Math.min(h * 0.14, 110);
       drawPixelText(ctx, "JULIO?", w / 2, h * 0.13, "#ffe066", "#1a1a1a", bigTitleH, maxLineW);
 
