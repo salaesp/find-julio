@@ -15,6 +15,8 @@ export const WORLD_ACCENTS: Record<number, string> = {
   12: "#5cf5ff", // La Computadora - cian tech
 };
 
+export const DEFAULT_ACCENT = "#ffe66d";
+
 export function getAccent(world: number): string {
-  return WORLD_ACCENTS[world] ?? "#ffe66d";
+  return WORLD_ACCENTS[world] ?? DEFAULT_ACCENT;
 }

@@ -12,17 +12,26 @@ import { worldModule as chessModule } from "./chessboardWorld";
 import { worldModule as computerModule } from "./computerWorld";
 import type { WorldModule } from "./types";
 
+// Ordered registry. Adding a new world: append the module here and (optionally)
+// add an entry in ./accents.ts. World ids are 1-based positions in this array.
+export const WORLDS: readonly WorldModule[] = [
+  parkModule,
+  beachModule,
+  farmModule,
+  iceModule,
+  jungleModule,
+  aquaModule,
+  pirateModule,
+  marathonModule,
+  schoolModule,
+  giantModule,
+  chessModule,
+  computerModule,
+];
+
+export const WORLD_COUNT = WORLDS.length;
+
 export function getWorld(world: number): WorldModule {
-  if (world >= 12) return computerModule;
-  if (world === 11) return chessModule;
-  if (world === 10) return giantModule;
-  if (world === 9) return schoolModule;
-  if (world === 8) return marathonModule;
-  if (world === 7) return pirateModule;
-  if (world === 6) return aquaModule;
-  if (world === 5) return jungleModule;
-  if (world === 4) return iceModule;
-  if (world === 3) return farmModule;
-  if (world === 2) return beachModule;
-  return parkModule;
+  const idx = Math.max(1, Math.min(WORLDS.length, world)) - 1;
+  return WORLDS[idx];
 }

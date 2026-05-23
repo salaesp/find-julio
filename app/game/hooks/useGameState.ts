@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useReducer } from "react";
-import { getWorld } from "../worlds";
+import { getWorld, WORLD_COUNT } from "../worlds";
 import type { Placement, WorldModule } from "../worlds/types";
 import { loadProgress, saveProgress } from "../storage";
 
@@ -22,7 +22,7 @@ export type GameState = {
 };
 
 const INITIAL_SEED = 0xC0FFEE;
-const TOTAL_WORLDS = 12;
+const TOTAL_WORLDS = WORLD_COUNT;
 const ANIM_MS = 1500;
 const FAIL_ANIM_MS = 1500;
 const MAX_WRONG = 5;
@@ -39,6 +39,13 @@ function shuffle<T>(arr: T[], rng: () => number): T[] {
 
 function freshSequence(): number[] {
   return shuffle(Array.from({ length: TOTAL_WORLDS }, (_, i) => i + 1), Math.random);
+}
+
+// Sequence starting at `startWorld`, with the rest shuffled and no repeats.
+function sequenceStartingAt(startWorld: number): number[] {
+  const ids = Array.from({ length: TOTAL_WORLDS }, (_, i) => i + 1);
+  const rest = ids.filter((id) => id !== startWorld);
+  return [startWorld, ...shuffle(rest, Math.random)];
 }
 
 // ───────── Reducer ─────────
@@ -115,7 +122,13 @@ function reducer(s: S, a: Action): S {
   }
 }
 
-function initialState(): S {
+function initialState(startWorld?: number): S {
+  if (startWorld != null && startWorld >= 1 && startWorld <= TOTAL_WORLDS) {
+    return {
+      sequence: sequenceStartingAt(startWorld),
+      step: 0, finds: 0, wrongClicks: 0, attemptIndex: 0, phase: "searching",
+    };
+  }
   const saved = loadProgress();
   const sequence = saved.currentSequence && saved.currentSequence.length === TOTAL_WORLDS
     ? saved.currentSequence
@@ -128,8 +141,8 @@ function initialState(): S {
 
 // ───────── Hook ─────────
 
-export function useGameState() {
-  const [s, dispatch] = useReducer(reducer, undefined, initialState);
+export function useGameState(startWorld?: number) {
+  const [s, dispatch] = useReducer(reducer, undefined, () => initialState(startWorld));
 
   const world = s.sequence[s.step] ?? 1;
   const worldModule = useMemo(() => getWorld(world), [world]);

@@ -2,6 +2,8 @@
 import { useEffect, useRef } from "react";
 import styles from "./WelcomeScreen.module.css";
 import { drawJulioFound } from "./characters/sprites";
+import { WORLDS } from "./worlds";
+import { getAccent } from "./worlds/accents";
 
 // Pixel text via offscreen low-res render, then nearest-neighbor upscale.
 function makePixelText(text: string, color: string, smallFontPx: number) {
@@ -66,7 +68,7 @@ function drawCloud(ctx: CanvasRenderingContext2D, x: number, y: number, px: numb
   set(3, 1, W); set(4, 1, W);
 }
 
-export default function WelcomeScreen({ onStart }: { onStart: () => void }) {
+export default function WelcomeScreen({ onStart }: { onStart: (startWorld?: number) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -168,8 +170,27 @@ export default function WelcomeScreen({ onStart }: { onStart: () => void }) {
     <div className={styles.root} ref={wrapRef}>
       <canvas ref={canvasRef} className={styles.canvas} />
       <div className={styles.bottomBar}>
-        <button className={styles.startBtn} onClick={onStart}>EMPEZAR</button>
+        <button className={styles.startBtn} onClick={() => onStart()}>EMPEZAR</button>
         <p className={styles.hint}>Encuentralo 3 veces en cada mundo</p>
+        <div className={styles.levelPicker} aria-label="Elegir mundo de inicio">
+          <span className={styles.levelPickerLabel}>O EMPEZÁ POR…</span>
+          <div className={styles.levelGrid}>
+            {WORLDS.map((w, i) => {
+              const id = i + 1;
+              const accent = getAccent(id);
+              return (
+                <button
+                  key={id}
+                  className={styles.levelChip}
+                  style={{ "--chip-accent": accent } as React.CSSProperties}
+                  onClick={() => onStart(id)}
+                >
+                  {w.title}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -14,12 +14,12 @@ const HIT_RADIUS = SPRITE_SIZE * 0.4;
 type WrongMark = { id: number; x: number; y: number; t: number };
 type HeartParticle = { id: number; x: number; y: number; vx: number; vy: number; t: number };
 
-export default function GameCanvas() {
+export default function GameCanvas({ startWorld }: { startWorld?: number }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [viewport, setViewport] = useState({ w: 1280, h: 720 });
-  const { state, registerFind, registerWrong, nextWorld } = useGameState();
+  const { state, registerFind, registerWrong, nextWorld } = useGameState(startWorld);
 
   const wrongMarksRef = useRef<WrongMark[]>([]);
   const heartsRef = useRef<HeartParticle[]>([]);

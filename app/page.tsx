@@ -5,5 +5,8 @@ import WelcomeScreen from "./game/WelcomeScreen";
 
 export default function Page() {
   const [started, setStarted] = useState(false);
-  return started ? <GameCanvas /> : <WelcomeScreen onStart={() => setStarted(true)} />;
+  const [startWorld, setStartWorld] = useState<number | undefined>(undefined);
+  return started
+    ? <GameCanvas startWorld={startWorld} />
+    : <WelcomeScreen onStart={(w) => { setStartWorld(w); setStarted(true); }} />;
 }

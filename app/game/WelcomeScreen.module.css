@@ -77,3 +77,73 @@
   0%, 100% { transform: translate(0, 0); }
   50% { transform: translate(0, -4px); }
 }
+.levelPicker {
+  margin-top: clamp(14px, 3vh, 28px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: min(92vw, 720px);
+}
+.levelPickerLabel {
+  font-family: "Press Start 2P", "Courier New", monospace;
+  font-size: clamp(9px, 1.6vw, 12px);
+  color: #fff;
+  letter-spacing: 0.18em;
+  text-shadow:
+    2px 2px 0 #1a1a1a,
+    -2px 0 0 #1a1a1a,
+    2px 0 0 #1a1a1a,
+    0 -2px 0 #1a1a1a,
+    0 2px 0 #1a1a1a;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+.levelGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(6px, 1.2vw, 10px);
+  width: 100%;
+}
+@media (max-width: 720px) {
+  .levelGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .levelGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.levelChip {
+  --chip-accent: #ffe066;
+  font-family: "Press Start 2P", "Courier New", monospace;
+  font-size: clamp(8px, 1.3vw, 11px);
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  color: #1a1a1a;
+  background: var(--chip-accent);
+  border: 0;
+  border-radius: 0;
+  padding: clamp(8px, 1.4vw, 12px) clamp(6px, 1vw, 10px);
+  cursor: pointer;
+  text-align: center;
+  white-space: normal;
+  /* pixel-art border via box-shadow */
+  box-shadow:
+    0 0 0 3px #1a1a1a,
+    4px 4px 0 3px #1a1a1a,
+    inset -3px -3px 0 0 color-mix(in srgb, var(--chip-accent) 65%, #000),
+    inset 3px 3px 0 0 color-mix(in srgb, var(--chip-accent) 70%, #fff);
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.levelChip:hover {
+  background: color-mix(in srgb, var(--chip-accent) 80%, #fff);
+}
+.levelChip:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    0 0 0 3px #1a1a1a,
+    2px 2px 0 3px #1a1a1a,
+    inset -3px -3px 0 0 color-mix(in srgb, var(--chip-accent) 65%, #000),
+    inset 3px 3px 0 0 color-mix(in srgb, var(--chip-accent) 70%, #fff);
+}
