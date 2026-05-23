@@ -266,7 +266,7 @@ export default function GameCanvas() {
       <div className={styles.hud}>
         <div className={styles.title}>
           ¿Dónde está Julio?
-          <small>Mundo {state.world} · {state.worldModule.title}</small>
+          <small>Mundo {state.step + 1}/{state.total} · {state.worldModule.title}</small>
         </div>
         <div className={styles.stats}>
           <div className={styles.box}>
@@ -295,7 +295,7 @@ export default function GameCanvas() {
             <h2>¡Mundo completado!</h2>
             <p>Encontraste a Julio 3 veces.</p>
             <button className={styles.btn} onClick={nextWorld}>
-              {state.world < 12 ? `Continuar al Mundo ${state.world + 1} →` : "Reiniciar"}
+              {state.step + 1 < state.total ? `Siguiente mundo →` : "Empezar de nuevo"}
             </button>
           </div>
         </div>

@@ -6,7 +6,9 @@ import type { Placement, WorldModule } from "../worlds/types";
 export type Phase = "searching" | "found_anim" | "world_complete";
 
 export type GameState = {
-  world: number;
+  world: number;       // actual world id (1..12) — theme
+  step: number;        // 0-indexed position in the random sequence
+  total: number;       // total worlds in sequence
   worldModule: WorldModule;
   finds: number;
   wrongClicks: number;
@@ -19,14 +21,30 @@ export type GameState = {
 };
 
 const INITIAL_SEED = 0xC0FFEE;
+const TOTAL_WORLDS = 12;
+
+function shuffle<T>(arr: T[], rng: () => number): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export function useGameState() {
-  const [world, setWorld] = useState(1);
+  // Random permutation of world ids — generated once per session
+  const [sequence, setSequence] = useState<number[]>(() => {
+    const ids = Array.from({ length: TOTAL_WORLDS }, (_, i) => i + 1);
+    return shuffle(ids, Math.random);
+  });
+  const [step, setStep] = useState(0);
   const [finds, setFinds] = useState(0);
   const [wrongClicks, setWrongClicks] = useState(0);
   const [phase, setPhase] = useState<Phase>("searching");
   const [attemptIndex, setAttemptIndex] = useState(0);
 
+  const world = sequence[step] ?? 1;
   const worldModule = useMemo(() => getWorld(world), [world]);
   const scene = useMemo(() => worldModule.buildScene(), [worldModule]);
   const seed = useMemo(() => INITIAL_SEED + world * 1000 + attemptIndex * 31, [world, attemptIndex]);
@@ -72,7 +90,15 @@ export function useGameState() {
   }, []);
 
   const nextWorld = useCallback(() => {
-    setWorld((w) => Math.min(12, w + 1));
+    setStep((s) => {
+      const next = s + 1;
+      if (next >= TOTAL_WORLDS) {
+        // All worlds completed → reshuffle and start over
+        setSequence(shuffle(Array.from({ length: TOTAL_WORLDS }, (_, i) => i + 1), Math.random));
+        return 0;
+      }
+      return next;
+    });
     setFinds(0);
     setWrongClicks(0);
     setAttemptIndex(0);
@@ -87,7 +113,8 @@ export function useGameState() {
   }, []);
 
   const state: GameState = {
-    world, worldModule, finds, wrongClicks, phase, seed, scene, placement, nextPlacement, attemptIndex,
+    world, step, total: TOTAL_WORLDS, worldModule, finds, wrongClicks, phase, seed,
+    scene, placement, nextPlacement, attemptIndex,
   };
   return { state, registerWrong, registerFind, nextWorld, resetWorld };
 }

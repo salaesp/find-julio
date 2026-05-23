@@ -1701,6 +1701,1186 @@ export function drawScarecrow(ctx: Ctx, x: number, y: number) {
   pset(ctx, gx + 3, gy + 1, "#e2c878");
 }
 
+// ───────────── Computadora props ─────────────
+
+export function drawCPU(ctx: Ctx, x: number, y: number, size: number) {
+  const gx = x / PX, gy = y / PX, gs = size / PX;
+  prect(ctx, gx + 1, gy + 1, gs, gs, "rgba(0,0,0,0.5)");
+  // socket (dark)
+  prect(ctx, gx - 2, gy - 2, gs + 4, gs + 4, "#1a1a1a");
+  // chip body
+  prect(ctx, gx, gy, gs, gs, "#3a3a44");
+  // gold pad center
+  const padW = Math.floor(gs * 0.7);
+  const padOff = Math.floor((gs - padW) / 2);
+  prect(ctx, gx + padOff, gy + padOff, padW, padW, "#f0c842");
+  prect(ctx, gx + padOff, gy + padOff, padW, 1, "#a87a3a");
+  prect(ctx, gx + padOff, gy + padOff + padW - 1, padW, 1, "#a87a3a");
+  // text-like circuit pattern on gold
+  for (let yy = gy + padOff + 2; yy < gy + padOff + padW - 2; yy += 3) {
+    for (let xx = gx + padOff + 2; xx < gx + padOff + padW - 2; xx += 2) {
+      if (((xx * 7 + yy * 11) & 3) === 0) pset(ctx, xx, yy, "#c89a3a");
+    }
+  }
+  // notched corner (orientation mark)
+  prect(ctx, gx + 1, gy + 1, 3, 3, "#f0c842");
+  // pins around edges
+  for (let i = 2; i < gs - 1; i += 2) {
+    pset(ctx, gx + i, gy - 1, "#bcbcc4");
+    pset(ctx, gx + i, gy + gs, "#bcbcc4");
+    pset(ctx, gx - 1, gy + i, "#bcbcc4");
+    pset(ctx, gx + gs, gy + i, "#bcbcc4");
+  }
+  // outline
+  prect(ctx, gx, gy, gs, 1, "#1a1a1a");
+  prect(ctx, gx, gy + gs - 1, gs, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, gs, "#1a1a1a");
+  prect(ctx, gx + gs - 1, gy, 1, gs, "#1a1a1a");
+  // tiny status LED corner
+  pset(ctx, gx + gs - 3, gy + 2, "#3aa86a");
+  pset(ctx, gx + gs - 3, gy + 4, "#e23a3a");
+}
+
+export function drawRAMStick(ctx: Ctx, x: number, y: number, h: number) {
+  const gx = x / PX, gy = y / PX, gh = h / PX;
+  prect(ctx, gx + 1, gy + 1, 12, gh, "rgba(0,0,0,0.4)");
+  // PCB green
+  prect(ctx, gx, gy, 12, gh, "#1a5a2a");
+  // outline
+  prect(ctx, gx, gy, 12, 1, "#1a1a1a");
+  prect(ctx, gx, gy + gh - 1, 12, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, gh, "#1a1a1a");
+  prect(ctx, gx + 11, gy, 1, gh, "#1a1a1a");
+  // chips on stick (8 small black rects)
+  for (let i = 0; i < 8; i++) {
+    const cy = gy + 2 + i * Math.floor((gh - 4) / 8);
+    prect(ctx, gx + 2, cy, 8, 2, "#1a1a1a");
+    prect(ctx, gx + 2, cy, 8, 1, "#3a3a44");
+    // label dot
+    pset(ctx, gx + 5, cy + 1, "#ffffff");
+  }
+  // gold contact pins at bottom edge
+  for (let i = 0; i < 6; i++) {
+    pset(ctx, gx + 1 + i * 2, gy + gh - 1, "#f0c842");
+  }
+  // notch
+  pset(ctx, gx + 6, gy + gh - 1, "#1a5a2a");
+  pset(ctx, gx + 7, gy + gh - 1, "#1a5a2a");
+  // sticker label
+  prect(ctx, gx + 2, gy + 1, 8, 2, "#ffffff");
+}
+
+export function drawCable(ctx: Ctx, x1: number, y1: number, x2: number, y2: number, color: string) {
+  // Catmull-ish curve drawn as series of pixels with sag
+  const sag = 18;
+  const steps = 24;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const cx = x1 + (x2 - x1) * t;
+    const cy = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * sag;
+    // draw 3px thick segment on grid
+    const gx = Math.floor(cx / PX);
+    const gy = Math.floor(cy / PX);
+    pset(ctx, gx, gy, "#1a1a1a");
+    pset(ctx, gx, gy + 1, color);
+    pset(ctx, gx + 1, gy + 1, color);
+    pset(ctx, gx + 1, gy + 2, "#1a1a1a");
+  }
+  // connectors at ends
+  const g1x = Math.floor(x1 / PX), g1y = Math.floor(y1 / PX);
+  const g2x = Math.floor(x2 / PX), g2y = Math.floor(y2 / PX);
+  prect(ctx, g1x - 2, g1y - 1, 4, 3, "#3a3a44");
+  prect(ctx, g1x - 2, g1y - 1, 4, 1, "#1a1a1a");
+  prect(ctx, g2x - 2, g2y - 1, 4, 3, "#3a3a44");
+  prect(ctx, g2x - 2, g2y - 1, 4, 1, "#1a1a1a");
+}
+
+export function drawBugDigital(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 3, 4, 1, "rgba(0,0,0,0.4)");
+  // body red oval
+  pellipse(ctx, gx, gy, 4, 3, "#e23a3a");
+  // body shading
+  pellipse(ctx, gx, gy - 1, 3, 2, "#f06a6a");
+  // black spots
+  pset(ctx, gx - 2, gy - 1, "#1a1a1a");
+  pset(ctx, gx + 1, gy, "#1a1a1a");
+  pset(ctx, gx, gy + 1, "#1a1a1a");
+  // center line
+  prect(ctx, gx, gy - 2, 1, 5, "#1a1a1a");
+  // head
+  pcircle(ctx, gx - 4, gy, 1, "#1a1a1a");
+  // antennae
+  pset(ctx, gx - 5, gy - 2, "#1a1a1a");
+  pset(ctx, gx - 5, gy + 1, "#1a1a1a");
+  // legs (3 each side)
+  pset(ctx, gx - 3, gy - 2, "#1a1a1a");
+  pset(ctx, gx - 1, gy - 3, "#1a1a1a");
+  pset(ctx, gx + 1, gy - 2, "#1a1a1a");
+  pset(ctx, gx - 3, gy + 2, "#1a1a1a");
+  pset(ctx, gx - 1, gy + 3, "#1a1a1a");
+  pset(ctx, gx + 1, gy + 2, "#1a1a1a");
+}
+
+export function drawRobotAnt(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 3, 4, 1, "rgba(0,0,0,0.4)");
+  // 3 body segments metal
+  pcircle(ctx, gx - 3, gy, 2, "#bcbcc4");
+  pcircle(ctx, gx, gy, 2, "#a8a8b2");
+  pcircle(ctx, gx + 3, gy, 2, "#8a8a98");
+  // antenna with red LED
+  pset(ctx, gx - 4, gy - 3, "#3a3a44");
+  pset(ctx, gx - 4, gy - 4, "#e23a3a");
+  // eyes (blue LEDs on head)
+  pset(ctx, gx - 4, gy, "#5aa6e8");
+  pset(ctx, gx - 3, gy - 1, "#5aa6e8");
+  // joints (highlights)
+  pset(ctx, gx - 3, gy, "#ffffff");
+  pset(ctx, gx, gy, "#ffffff");
+  pset(ctx, gx + 3, gy, "#ffffff");
+  // legs (mechanical pixel sticks)
+  pset(ctx, gx - 2, gy + 2, "#3a3a44");
+  pset(ctx, gx, gy + 2, "#3a3a44");
+  pset(ctx, gx + 2, gy + 2, "#3a3a44");
+  pset(ctx, gx - 2, gy - 2, "#3a3a44");
+  pset(ctx, gx, gy - 2, "#3a3a44");
+  pset(ctx, gx + 2, gy - 2, "#3a3a44");
+  // outlines
+  pset(ctx, gx - 5, gy, "#1a1a1a");
+  pset(ctx, gx + 5, gy, "#1a1a1a");
+}
+
+// ───────────── Tablero ajedrez props ─────────────
+
+export type ChessKind = "pawn" | "rook" | "bishop" | "knight" | "queen" | "king";
+
+export function drawChessPiece(ctx: Ctx, x: number, y: number, color: string, kind: ChessKind) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 6, 5, 1, "rgba(0,0,0,0.5)");
+  // base disc
+  pellipse(ctx, gx, gy + 5, 5, 2, color);
+  pellipse(ctx, gx, gy + 5, 5, 2, color);
+  prect(ctx, gx - 5, gy + 5, 11, 1, "#1a1a1a");
+  // body / stem
+  prect(ctx, gx - 2, gy - 1, 5, 6, color);
+  // body shading
+  prect(ctx, gx + 2, gy - 1, 1, 6, "rgba(0,0,0,0.3)");
+  prect(ctx, gx - 2, gy - 1, 1, 6, "rgba(255,255,255,0.2)");
+  // outline body
+  prect(ctx, gx - 2, gy - 1, 1, 6, "#1a1a1a");
+  prect(ctx, gx + 2, gy - 1, 1, 6, "#1a1a1a");
+  // top pieces by kind
+  if (kind === "pawn") {
+    pcircle(ctx, gx, gy - 3, 2, color);
+    pset(ctx, gx, gy - 3, "rgba(255,255,255,0.3)");
+    // outline top
+    pset(ctx, gx - 2, gy - 3, "#1a1a1a");
+    pset(ctx, gx + 2, gy - 3, "#1a1a1a");
+    pset(ctx, gx, gy - 5, "#1a1a1a");
+  } else if (kind === "rook") {
+    // square top with battlements
+    prect(ctx, gx - 3, gy - 5, 7, 3, color);
+    prect(ctx, gx - 3, gy - 5, 7, 1, "#1a1a1a");
+    prect(ctx, gx - 3, gy - 3, 1, 1, "#1a1a1a");
+    prect(ctx, gx + 3, gy - 3, 1, 1, "#1a1a1a");
+    // crenellations
+    pset(ctx, gx - 2, gy - 6, color); pset(ctx, gx, gy - 6, color); pset(ctx, gx + 2, gy - 6, color);
+  } else if (kind === "bishop") {
+    // pointed top
+    pcircle(ctx, gx, gy - 4, 2, color);
+    pset(ctx, gx, gy - 6, color);
+    pset(ctx, gx, gy - 7, "#1a1a1a");
+    // cross slit
+    pset(ctx, gx, gy - 4, "rgba(255,255,255,0.6)");
+  } else if (kind === "knight") {
+    // horse head silhouette
+    prect(ctx, gx - 2, gy - 5, 4, 3, color);
+    pset(ctx, gx - 3, gy - 4, color);
+    pset(ctx, gx + 2, gy - 6, color); // ear
+    pset(ctx, gx + 1, gy - 6, color);
+    pset(ctx, gx + 1, gy - 5, "rgba(255,255,255,0.6)"); // eye
+    pset(ctx, gx - 3, gy - 3, "#1a1a1a");
+  } else if (kind === "queen") {
+    pcircle(ctx, gx, gy - 4, 2, color);
+    // crown pearls
+    pset(ctx, gx - 2, gy - 6, "#f0c842");
+    pset(ctx, gx, gy - 7, "#f0c842");
+    pset(ctx, gx + 2, gy - 6, "#f0c842");
+    pset(ctx, gx - 1, gy - 6, color);
+    pset(ctx, gx + 1, gy - 6, color);
+  } else if (kind === "king") {
+    pcircle(ctx, gx, gy - 4, 2, color);
+    // cross on top
+    prect(ctx, gx, gy - 7, 1, 3, "#f0c842");
+    prect(ctx, gx - 1, gy - 6, 3, 1, "#f0c842");
+    pset(ctx, gx, gy - 8, "#1a1a1a");
+  }
+}
+
+export function drawHourglass(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 9, 7, 2, "rgba(0,0,0,0.4)");
+  // wooden frame top + bottom
+  prect(ctx, gx - 6, gy - 8, 13, 2, "#7a4a22");
+  prect(ctx, gx - 6, gy + 6, 13, 2, "#7a4a22");
+  prect(ctx, gx - 6, gy - 8, 13, 1, "#5a3a1a");
+  prect(ctx, gx - 6, gy + 7, 13, 1, "#5a3a1a");
+  // glass top half (lighter)
+  for (let yy = -6; yy <= -1; yy++) {
+    const halfW = 5 - Math.floor((yy + 6) * 0.7);
+    prect(ctx, gx - halfW, gy + yy, halfW * 2 + 1, 1, "#e8eef8");
+  }
+  // glass bottom half
+  for (let yy = 0; yy <= 5; yy++) {
+    const halfW = Math.floor(yy * 0.7) + 1;
+    prect(ctx, gx - halfW, gy + yy, halfW * 2 + 1, 1, "#e8eef8");
+  }
+  // sand top (gold)
+  for (let yy = -5; yy <= -2; yy++) {
+    const halfW = 4 - Math.floor((yy + 5) * 0.8);
+    prect(ctx, gx - halfW, gy + yy, halfW * 2 + 1, 1, "#f0c842");
+  }
+  // sand bottom (pile)
+  prect(ctx, gx - 4, gy + 5, 9, 1, "#f0c842");
+  prect(ctx, gx - 3, gy + 4, 7, 1, "#f0c842");
+  prect(ctx, gx - 2, gy + 3, 5, 1, "#f0c842");
+  // sand stream (1 px column falling)
+  pset(ctx, gx, gy - 1, "#f0c842");
+  pset(ctx, gx, gy, "#f0c842");
+  pset(ctx, gx, gy + 1, "#f0c842");
+  pset(ctx, gx, gy + 2, "#f0c842");
+  // glass outline
+  prect(ctx, gx - 5, gy - 6, 1, 12, "#1a1a1a");
+  prect(ctx, gx + 5, gy - 6, 1, 12, "#1a1a1a");
+}
+
+// Giant hand silhouette pinching from edge.
+// `side`: 'top' | 'bottom' | 'left' | 'right'. (x,y) anchored at finger tip.
+export function drawGiantHand(ctx: Ctx, x: number, y: number, side: "top" | "bottom" | "left" | "right") {
+  const gx = x / PX, gy = y / PX;
+  const skin = "#f3c79a";
+  const skinShade = "#d99a6a";
+  // base drawing: hand pointing right, fingers extended.
+  // We'll render to offscreen orientation by mapping coords.
+  const set = (dx: number, dy: number, c: string) => {
+    let mx = dx, my = dy;
+    if (side === "top") { mx = dx; my = -dy; }      // mirror vertical
+    else if (side === "left") { mx = -dy; my = dx; } // rotate 90 ccw mapping
+    else if (side === "right") { mx = dy; my = dx; } // rotate 90 cw mapping
+    pset(ctx, gx + mx, gy + my, c);
+  };
+  // For "bottom" (default): finger up
+  // We'll draw a hand whose finger tip is at (0,0), pointing in +y for "bottom" (entering from below pointing up).
+  // Use bottom as default and skip side fancy mapping — just call with side="bottom" generally; for other sides, we'll re-orient simply.
+
+  // index finger pointing up
+  for (let yy = 0; yy <= 16; yy++) {
+    set(-1, yy, skin); set(0, yy, skin); set(1, yy, skin);
+  }
+  // fingertip nail hint
+  set(0, 0, "#ffe0d0");
+  // shading right side of finger
+  for (let yy = 1; yy <= 16; yy++) set(1, yy, skinShade);
+  // hand palm (wider lower part)
+  for (let yy = 14; yy <= 24; yy++) {
+    const half = Math.min(6, 2 + (yy - 14));
+    for (let xx = -half; xx <= half; xx++) set(xx, yy, skin);
+  }
+  // thumb sticking sideways
+  for (let xx = -7; xx <= -3; xx++) set(xx, 16, skin);
+  for (let xx = -7; xx <= -3; xx++) set(xx, 17, skin);
+  // knuckle lines
+  for (let xx = -5; xx <= 5; xx++) set(xx, 20, skinShade);
+  // outline silhouette
+  for (let yy = 0; yy <= 16; yy++) {
+    set(-2, yy, "#1a1a1a");
+    set(2, yy, "#1a1a1a");
+  }
+  set(-1, -1, "#1a1a1a");
+  set(0, -1, "#1a1a1a");
+  set(1, -1, "#1a1a1a");
+  // palm outline
+  for (let xx = -7; xx <= 7; xx++) {
+    set(xx, 24, "#1a1a1a");
+  }
+  set(-7, 23, "#1a1a1a");
+  set(7, 23, "#1a1a1a");
+  set(-8, 17, "#1a1a1a");
+  set(-8, 16, "#1a1a1a");
+  // wrist sleeve (shirt cuff)
+  for (let xx = -7; xx <= 7; xx++) {
+    set(xx, 25, "#3a78c9");
+    set(xx, 26, "#3a78c9");
+  }
+  set(-7, 25, "#1a1a1a"); set(7, 25, "#1a1a1a");
+  set(-7, 26, "#1a1a1a"); set(7, 26, "#1a1a1a");
+}
+
+// ───────────── Mundo gigante props (escritorio) ─────────────
+
+export function drawGiantBook(ctx: Ctx, x: number, y: number, w: number, h: number, color: string) {
+  const gx = x / PX, gy = y / PX, gw = w / PX, gh = h / PX;
+  // shadow
+  prect(ctx, gx + 2, gy + 2, gw, gh, "rgba(0,0,0,0.5)");
+  // pages (white side stripes)
+  prect(ctx, gx, gy + 1, gw, gh - 2, "#f0e8d8");
+  for (let yy = gy + 2; yy < gy + gh - 2; yy += 2) {
+    prect(ctx, gx, yy, gw, 1, "#dcd4c0");
+  }
+  // cover (top + bottom rectangles)
+  prect(ctx, gx, gy, gw, 2, color);
+  prect(ctx, gx, gy + gh - 2, gw, 2, color);
+  // spine + outline
+  prect(ctx, gx, gy, 2, gh, color);
+  prect(ctx, gx + gw - 2, gy, 2, gh, color);
+  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy + gh - 1, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, gh, "#1a1a1a");
+  prect(ctx, gx + gw - 1, gy, 1, gh, "#1a1a1a");
+  // title bar on cover top
+  prect(ctx, gx + 2, gy + 1, gw - 4, 1, "#f0c842");
+}
+
+export function drawGiantPencil(ctx: Ctx, x: number, y: number, len: number, color: string) {
+  const gx = x / PX, gy = y / PX, glen = len / PX;
+  // shadow
+  prect(ctx, gx + 1, gy + 1, glen, 5, "rgba(0,0,0,0.4)");
+  // wood tip (left)
+  prect(ctx, gx, gy + 1, 3, 3, "#e2c878");
+  prect(ctx, gx, gy + 1, 3, 1, "#a87a4a");
+  prect(ctx, gx, gy + 3, 3, 1, "#a87a4a");
+  // lead point
+  pset(ctx, gx - 1, gy + 2, "#1a1a1a");
+  // colored shaft
+  prect(ctx, gx + 3, gy, glen - 7, 5, color);
+  // stripes
+  prect(ctx, gx + 3, gy, glen - 7, 1, "rgba(0,0,0,0.3)");
+  prect(ctx, gx + 3, gy + 4, glen - 7, 1, "rgba(0,0,0,0.3)");
+  prect(ctx, gx + 3, gy + 2, glen - 7, 1, "rgba(255,255,255,0.18)");
+  // metal ferrule
+  prect(ctx, gx + glen - 4, gy, 2, 5, "#bcbcc4");
+  prect(ctx, gx + glen - 4, gy + 2, 2, 1, "#7a7a86");
+  // eraser end (pink)
+  prect(ctx, gx + glen - 2, gy, 2, 5, "#f4a8b8");
+  prect(ctx, gx + glen - 2, gy, 2, 1, "#c87898");
+  // outline
+  prect(ctx, gx + 3, gy, glen - 5, 1, "#1a1a1a");
+  prect(ctx, gx + 3, gy + 4, glen - 5, 1, "#1a1a1a");
+}
+
+export function drawGiantMug(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  // shadow
+  pellipse(ctx, gx, gy + 13, 12, 3, "rgba(0,0,0,0.45)");
+  // mug body (white)
+  prect(ctx, gx - 9, gy - 6, 18, 18, "#ffffff");
+  // outline
+  prect(ctx, gx - 9, gy - 6, 18, 1, "#1a1a1a");
+  prect(ctx, gx - 9, gy + 11, 18, 1, "#1a1a1a");
+  prect(ctx, gx - 9, gy - 6, 1, 18, "#1a1a1a");
+  prect(ctx, gx + 8, gy - 6, 1, 18, "#1a1a1a");
+  // shading
+  prect(ctx, gx + 6, gy - 5, 2, 16, "#dcdce4");
+  // colored stripe band
+  prect(ctx, gx - 8, gy + 4, 16, 3, "#3a78c9");
+  prect(ctx, gx - 8, gy + 7, 16, 1, "#2a5a9a");
+  // coffee top (oval brown)
+  pellipse(ctx, gx, gy - 6, 8, 2, "#5a3a1a");
+  pellipse(ctx, gx, gy - 6, 7, 1, "#7a4a22");
+  // foam dots
+  pset(ctx, gx - 2, gy - 6, "#e2c878");
+  pset(ctx, gx + 2, gy - 6, "#e2c878");
+  // handle (right side)
+  prect(ctx, gx + 9, gy - 2, 4, 2, "#ffffff");
+  prect(ctx, gx + 11, gy, 2, 6, "#ffffff");
+  prect(ctx, gx + 9, gy + 5, 4, 2, "#ffffff");
+  prect(ctx, gx + 9, gy - 2, 4, 1, "#1a1a1a");
+  prect(ctx, gx + 9, gy + 6, 4, 1, "#1a1a1a");
+  prect(ctx, gx + 12, gy, 1, 6, "#1a1a1a");
+  // steam wisps above
+  pset(ctx, gx - 3, gy - 10, "#dcdce4");
+  pset(ctx, gx - 2, gy - 11, "#dcdce4");
+  pset(ctx, gx - 1, gy - 10, "#dcdce4");
+  pset(ctx, gx, gy - 11, "#dcdce4");
+  pset(ctx, gx + 1, gy - 10, "#dcdce4");
+  pset(ctx, gx + 2, gy - 11, "#dcdce4");
+}
+
+export function drawGiantRuler(ctx: Ctx, x: number, y: number, len: number) {
+  const gx = x / PX, gy = y / PX, glen = len / PX;
+  // shadow
+  prect(ctx, gx + 1, gy + 1, glen, 7, "rgba(0,0,0,0.4)");
+  // ruler body (yellow wood)
+  prect(ctx, gx, gy, glen, 7, "#f0c842");
+  // grain shading
+  prect(ctx, gx, gy + 5, glen, 1, "#c89a2a");
+  prect(ctx, gx, gy + 1, glen, 1, "#f8d870");
+  // outline
+  prect(ctx, gx, gy, glen, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 6, glen, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, 7, "#1a1a1a");
+  prect(ctx, gx + glen - 1, gy, 1, 7, "#1a1a1a");
+  // tick marks
+  for (let i = 2; i < glen - 1; i += 2) {
+    const tall = i % 10 === 0 ? 4 : (i % 5 === 0 ? 3 : 2);
+    prect(ctx, gx + i, gy + 1, 1, tall, "#1a1a1a");
+  }
+}
+
+export function drawGiantEraser(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  prect(ctx, gx + 1, gy + 1, 14, 6, "rgba(0,0,0,0.4)");
+  // body pink
+  prect(ctx, gx, gy, 14, 6, "#f4a8b8");
+  // top sleeve (orange band)
+  prect(ctx, gx, gy, 14, 2, "#e8853a");
+  // outline
+  prect(ctx, gx, gy, 14, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 5, 14, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, 6, "#1a1a1a");
+  prect(ctx, gx + 13, gy, 1, 6, "#1a1a1a");
+  // dust pixels
+  pset(ctx, gx + 3, gy + 3, "rgba(255,255,255,0.4)");
+  pset(ctx, gx + 9, gy + 4, "rgba(255,255,255,0.4)");
+  // brand stripe
+  prect(ctx, gx + 2, gy + 3, 10, 1, "#c87898");
+}
+
+export function drawGiantSharpener(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  prect(ctx, gx + 1, gy + 1, 9, 6, "rgba(0,0,0,0.4)");
+  // body (red plastic)
+  prect(ctx, gx, gy, 9, 6, "#e23a3a");
+  prect(ctx, gx, gy + 1, 9, 1, "#f8a8a0");
+  prect(ctx, gx, gy + 4, 9, 1, "#a82a2a");
+  // outline
+  prect(ctx, gx, gy, 9, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 5, 9, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, 6, "#1a1a1a");
+  prect(ctx, gx + 8, gy, 1, 6, "#1a1a1a");
+  // hole for pencil
+  pcircle(ctx, gx + 4, gy + 3, 1, "#1a1a1a");
+  pset(ctx, gx + 4, gy + 3, "#3a3a3a");
+  // metal blade screw
+  pset(ctx, gx + 7, gy + 1, "#bcbcc4");
+}
+
+// ───────────── Escuela props ─────────────
+
+export function drawHopscotch(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  const colors = ["#e23a3a", "#3a78c9", "#f0c842", "#3aa86a", "#a85ad4"];
+  // Hopscotch: 1 / 2-3 / 4 / 5-6 / 7 / 8-9 / 10 simplified to 7 squares stacked
+  // Pattern: 1 box (1), 2 boxes (2,3), 1 box (4), 2 boxes (5,6), 1 box (7)
+  let cy = 0;
+  const drawBox = (col: number, row: number, c: string, label: string) => {
+    const bx = gx - 4 + col * 6;
+    const by = gy + row * 6;
+    prect(ctx, bx, by, 6, 6, c);
+    prect(ctx, bx, by, 6, 1, "#ffffff");
+    prect(ctx, bx, by + 5, 6, 1, "#ffffff");
+    prect(ctx, bx, by, 1, 6, "#ffffff");
+    prect(ctx, bx + 5, by, 1, 6, "#ffffff");
+    // chalk number (single pixel dot)
+    void label;
+    pset(ctx, bx + 2, by + 2, "#ffffff");
+    pset(ctx, bx + 3, by + 3, "#ffffff");
+  };
+  drawBox(1, cy, colors[0], "1"); cy++;
+  drawBox(0, cy, colors[1], "2"); drawBox(2, cy, colors[1], "3"); cy++;
+  drawBox(1, cy, colors[2], "4"); cy++;
+  drawBox(0, cy, colors[3], "5"); drawBox(2, cy, colors[3], "6"); cy++;
+  drawBox(1, cy, colors[4], "7");
+}
+
+export function drawSchoolBall(ctx: Ctx, x: number, y: number, color: string) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 3, 3, 1, "rgba(0,0,0,0.35)");
+  pcircle(ctx, gx, gy, 3, color);
+  // hexagon stitching
+  pset(ctx, gx, gy - 2, "#1a1a1a");
+  pset(ctx, gx - 2, gy, "#1a1a1a");
+  pset(ctx, gx + 2, gy, "#1a1a1a");
+  pset(ctx, gx, gy + 2, "#1a1a1a");
+  pset(ctx, gx - 1, gy - 1, "#1a1a1a");
+  pset(ctx, gx + 1, gy + 1, "#1a1a1a");
+  // shine
+  pset(ctx, gx - 1, gy - 2, "#ffffff");
+}
+
+export function drawJumpRope(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  // coiled rope (concentric circles)
+  pcircle(ctx, gx, gy, 4, "#e8853a");
+  pcircle(ctx, gx, gy, 3, "#a85a1a");
+  pcircle(ctx, gx, gy, 2, "#e8853a");
+  pset(ctx, gx, gy, "#a85a1a");
+  // handles (red)
+  prect(ctx, gx - 6, gy - 1, 2, 2, "#e23a3a");
+  prect(ctx, gx + 5, gy + 1, 2, 2, "#e23a3a");
+  prect(ctx, gx - 6, gy - 1, 1, 2, "#1a1a1a");
+  prect(ctx, gx + 6, gy + 1, 1, 2, "#1a1a1a");
+}
+
+export function drawSchoolBench(ctx: Ctx, x: number, y: number, w: number) {
+  const gx = x / PX, gy = y / PX, gw = w / PX;
+  prect(ctx, gx + 1, gy + 1, gw, 6, "rgba(0,0,0,0.35)");
+  // seat
+  prect(ctx, gx, gy, gw, 5, "#7a4a22");
+  // stripes (planks)
+  prect(ctx, gx, gy + 1, gw, 1, "#a87a4a");
+  prect(ctx, gx, gy + 3, gw, 1, "#5a3a1a");
+  // outline
+  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 4, gw, 1, "#1a1a1a");
+  // metal legs
+  prect(ctx, gx + 2, gy + 5, 1, 2, "#3a3a44");
+  prect(ctx, gx + gw - 3, gy + 5, 1, 2, "#3a3a44");
+  prect(ctx, gx + Math.floor(gw / 2), gy + 5, 1, 2, "#3a3a44");
+}
+
+export function drawBackpack(ctx: Ctx, x: number, y: number, color: string) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 4, 4, 1, "rgba(0,0,0,0.4)");
+  // body
+  prect(ctx, gx - 3, gy - 2, 7, 7, color);
+  // pocket flap (lighter shade)
+  prect(ctx, gx - 2, gy, 5, 3, "rgba(255,255,255,0.2)");
+  // straps
+  prect(ctx, gx - 4, gy - 2, 1, 6, color);
+  prect(ctx, gx + 4, gy - 2, 1, 6, color);
+  // outline
+  prect(ctx, gx - 3, gy - 2, 7, 1, "#1a1a1a");
+  prect(ctx, gx - 3, gy + 4, 7, 1, "#1a1a1a");
+  prect(ctx, gx - 3, gy - 2, 1, 7, "#1a1a1a");
+  prect(ctx, gx + 3, gy - 2, 1, 7, "#1a1a1a");
+  // zipper line
+  prect(ctx, gx - 2, gy + 1, 5, 1, "#1a1a1a");
+  // top handle
+  prect(ctx, gx - 1, gy - 3, 3, 1, "#1a1a1a");
+}
+
+export function drawTrashCan(ctx: Ctx, x: number, y: number, color: string) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 5, 4, 1, "rgba(0,0,0,0.4)");
+  // body
+  prect(ctx, gx - 4, gy - 3, 9, 8, color);
+  // rim/lid
+  prect(ctx, gx - 5, gy - 3, 11, 2, "#3a3a3a");
+  // shade
+  prect(ctx, gx - 4, gy - 1, 9, 1, "rgba(0,0,0,0.18)");
+  prect(ctx, gx + 3, gy - 1, 1, 6, "rgba(0,0,0,0.18)");
+  // outline body
+  prect(ctx, gx - 4, gy + 4, 9, 1, "#1a1a1a");
+  prect(ctx, gx - 4, gy - 1, 1, 6, "#1a1a1a");
+  prect(ctx, gx + 4, gy - 1, 1, 6, "#1a1a1a");
+  prect(ctx, gx - 5, gy - 3, 11, 1, "#1a1a1a");
+  prect(ctx, gx - 5, gy, 11, 1, "#1a1a1a");
+  // label
+  prect(ctx, gx - 1, gy + 1, 3, 2, "#ffffff");
+}
+
+export function drawSchoolEntrance(ctx: Ctx, x: number, y: number, w: number) {
+  const gx = x / PX, gy = y / PX, gw = w / PX;
+  // shadow
+  prect(ctx, gx + 1, gy + 1, gw, 10, "rgba(0,0,0,0.4)");
+  // wall (cream)
+  prect(ctx, gx, gy, gw, 10, "#f0d68a");
+  // wall outline
+  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 9, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, 10, "#1a1a1a");
+  prect(ctx, gx + gw - 1, gy, 1, 10, "#1a1a1a");
+  // wall stripe
+  prect(ctx, gx, gy + 5, gw, 1, "#c89a5a");
+  // door (center, dark)
+  const doorW = Math.floor(gw / 4);
+  const doorX = gx + Math.floor(gw / 2) - Math.floor(doorW / 2);
+  prect(ctx, doorX, gy + 3, doorW, 7, "#5a3a1a");
+  prect(ctx, doorX, gy + 3, doorW, 1, "#3a2a14");
+  prect(ctx, doorX, gy + 3, 1, 7, "#3a2a14");
+  prect(ctx, doorX + doorW - 1, gy + 3, 1, 7, "#3a2a14");
+  // door divider
+  prect(ctx, doorX + Math.floor(doorW / 2), gy + 3, 1, 7, "#3a2a14");
+  // handle
+  pset(ctx, doorX + Math.floor(doorW / 2) - 1, gy + 7, "#f0c842");
+  pset(ctx, doorX + Math.floor(doorW / 2) + 1, gy + 7, "#f0c842");
+  // windows (sides of door)
+  const wWin = 5;
+  prect(ctx, doorX - wWin - 3, gy + 3, wWin, 4, "#5aa6e8");
+  prect(ctx, doorX + doorW + 3, gy + 3, wWin, 4, "#5aa6e8");
+  prect(ctx, doorX - wWin - 3, gy + 3, wWin, 1, "#1a1a1a");
+  prect(ctx, doorX + doorW + 3, gy + 3, wWin, 1, "#1a1a1a");
+  prect(ctx, doorX - wWin - 3, gy + 7, wWin, 1, "#1a1a1a");
+  prect(ctx, doorX + doorW + 3, gy + 7, wWin, 1, "#1a1a1a");
+  // window cross
+  pset(ctx, doorX - wWin + Math.floor(wWin / 2) - 3, gy + 4, "#1a1a1a");
+  pset(ctx, doorX - wWin + Math.floor(wWin / 2) - 3, gy + 5, "#1a1a1a");
+  // big sign ESCUELA above wall
+  prect(ctx, gx + Math.floor(gw / 2) - 14, gy - 6, 28, 5, "#e23a3a");
+  prect(ctx, gx + Math.floor(gw / 2) - 14, gy - 6, 28, 1, "#1a1a1a");
+  prect(ctx, gx + Math.floor(gw / 2) - 14, gy - 2, 28, 1, "#1a1a1a");
+  prect(ctx, gx + Math.floor(gw / 2) - 14, gy - 6, 1, 5, "#1a1a1a");
+  prect(ctx, gx + Math.floor(gw / 2) + 13, gy - 6, 1, 5, "#1a1a1a");
+  // ESCUELA white text bar
+  prect(ctx, gx + Math.floor(gw / 2) - 10, gy - 4, 20, 2, "#ffffff");
+  // staircase (3 steps in front of door)
+  for (let i = 0; i < 3; i++) {
+    prect(ctx, doorX - 2 + i, gy + 10 + i, doorW + 4 - i * 2, 1, "#a8a8b2");
+  }
+}
+
+export function drawFlagpoleAR(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  // base
+  prect(ctx, gx - 3, gy + 12, 7, 2, "#5a5a66");
+  prect(ctx, gx - 3, gy + 12, 7, 1, "#3a3a44");
+  // pole (vertical tall)
+  prect(ctx, gx, gy - 14, 1, 26, "#bcbcc4");
+  // top ball
+  pset(ctx, gx, gy - 15, "#f0c842");
+  // Argentine flag (celeste-white-celeste horizontal)
+  prect(ctx, gx + 1, gy - 12, 8, 2, "#7ec8e3"); // celeste
+  prect(ctx, gx + 1, gy - 10, 8, 2, "#ffffff"); // white
+  prect(ctx, gx + 1, gy - 8, 8, 2, "#7ec8e3");  // celeste
+  // sun (yellow circle middle of white stripe)
+  pset(ctx, gx + 5, gy - 10, "#f0c842");
+  pset(ctx, gx + 4, gy - 10, "#f0c842");
+  pset(ctx, gx + 5, gy - 9, "#f0c842");
+  // outline flag
+  prect(ctx, gx + 1, gy - 12, 8, 1, "#1a1a1a");
+  prect(ctx, gx + 1, gy - 7, 8, 1, "#1a1a1a");
+  prect(ctx, gx + 1, gy - 12, 1, 6, "#1a1a1a");
+  prect(ctx, gx + 8, gy - 12, 1, 6, "#1a1a1a");
+}
+
+// ───────────── Maratón ciudad props ─────────────
+
+export function drawFinishArch(ctx: Ctx, x: number, y: number, w: number) {
+  const gx = x / PX, gy = y / PX, gw = w / PX;
+  // posts (left + right)
+  prect(ctx, gx, gy, 3, 14, "#e23a3a");
+  prect(ctx, gx + gw - 3, gy, 3, 14, "#e23a3a");
+  // post highlight
+  prect(ctx, gx, gy, 1, 14, "#ffffff");
+  prect(ctx, gx + gw - 3, gy, 1, 14, "#ffffff");
+  // outline posts
+  prect(ctx, gx, gy, 3, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 13, 3, 1, "#1a1a1a");
+  prect(ctx, gx + gw - 3, gy, 3, 1, "#1a1a1a");
+  prect(ctx, gx + gw - 3, gy + 13, 3, 1, "#1a1a1a");
+  // banner (top crossbar)
+  prect(ctx, gx, gy - 6, gw, 6, "#e23a3a");
+  prect(ctx, gx, gy - 6, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
+  // FINISH text bars (white blocks)
+  prect(ctx, gx + 2, gy - 4, gw - 4, 2, "#ffffff");
+  // small flags on top
+  for (let xx = gx + 2; xx < gx + gw - 2; xx += 4) {
+    pset(ctx, xx, gy - 7, "#f0c842");
+    pset(ctx, xx + 1, gy - 8, "#3aa86a");
+    pset(ctx, xx + 2, gy - 7, "#3a78c9");
+  }
+  // checker line below arch (start/finish line on street)
+  for (let xx = gx; xx < gx + gw; xx += 2) {
+    pset(ctx, xx, gy + 16, ((xx / 2) & 1) === 0 ? "#ffffff" : "#1a1a1a");
+    pset(ctx, xx, gy + 17, ((xx / 2) & 1) === 0 ? "#1a1a1a" : "#ffffff");
+  }
+}
+
+export function drawBarrier(ctx: Ctx, x: number, y: number, vertical: boolean = true, length: number = 60) {
+  const gx = x / PX, gy = y / PX, glen = length / PX;
+  if (vertical) {
+    // shadow
+    prect(ctx, gx + 1, gy + 1, 2, glen, "rgba(0,0,0,0.35)");
+    // posts at intervals
+    for (let i = 0; i <= glen; i += 6) {
+      prect(ctx, gx, gy + i, 2, 1, "#bcbcc4");
+      prect(ctx, gx, gy + i + 1, 2, 4, "#bcbcc4");
+      pset(ctx, gx, gy + i, "#1a1a1a");
+    }
+    // horizontal bars connecting posts
+    prect(ctx, gx, gy + 1, 2, 1, "#a8a8b2");
+    prect(ctx, gx, gy + Math.floor(glen / 2), 2, 1, "#a8a8b2");
+    prect(ctx, gx, gy + glen - 1, 2, 1, "#a8a8b2");
+  } else {
+    prect(ctx, gx + 1, gy + 1, glen, 2, "rgba(0,0,0,0.35)");
+    for (let i = 0; i <= glen; i += 6) {
+      prect(ctx, gx + i, gy, 4, 2, "#bcbcc4");
+      pset(ctx, gx + i, gy, "#1a1a1a");
+    }
+    prect(ctx, gx, gy + 1, glen, 1, "#a8a8b2");
+  }
+}
+
+export function drawHydrationTable(ctx: Ctx, x: number, y: number, w: number) {
+  const gx = x / PX, gy = y / PX, gw = w / PX;
+  // shadow
+  prect(ctx, gx + 1, gy + 5, gw, 1, "rgba(0,0,0,0.4)");
+  // tablecloth (white)
+  prect(ctx, gx, gy - 1, gw, 7, "#ffffff");
+  prect(ctx, gx, gy - 1, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy + 5, gw, 1, "#1a1a1a");
+  // red stripe
+  prect(ctx, gx, gy + 2, gw, 1, "#e23a3a");
+  // cups on table (small)
+  for (let xx = gx + 2; xx < gx + gw - 1; xx += 3) {
+    pset(ctx, xx, gy, "#3a78c9");
+    pset(ctx, xx, gy - 1, "#3a78c9");
+    pset(ctx, xx + 1, gy, "#5aa6e8");
+  }
+  // water jug on side
+  prect(ctx, gx + gw - 4, gy - 3, 3, 3, "#3a78c9");
+  prect(ctx, gx + gw - 4, gy - 3, 3, 1, "#1a1a1a");
+  pset(ctx, gx + gw - 1, gy - 2, "#3a78c9");
+}
+
+export function drawSpectatorFlag(ctx: Ctx, x: number, y: number, color: string) {
+  const gx = x / PX, gy = y / PX;
+  // stick
+  prect(ctx, gx, gy, 1, 6, "#5a3a1e");
+  // flag
+  prect(ctx, gx + 1, gy, 4, 3, color);
+  prect(ctx, gx + 1, gy, 4, 1, "#1a1a1a");
+  prect(ctx, gx + 1, gy + 2, 4, 1, "#1a1a1a");
+  prect(ctx, gx + 4, gy, 1, 3, "#1a1a1a");
+}
+
+export function drawSign(ctx: Ctx, x: number, y: number, color: string) {
+  const gx = x / PX, gy = y / PX;
+  // stick
+  prect(ctx, gx, gy, 1, 6, "#5a3a1e");
+  // sign rectangle
+  prect(ctx, gx - 3, gy - 3, 7, 4, color);
+  prect(ctx, gx - 3, gy - 3, 7, 1, "#1a1a1a");
+  prect(ctx, gx - 3, gy, 7, 1, "#1a1a1a");
+  prect(ctx, gx - 3, gy - 3, 1, 4, "#1a1a1a");
+  prect(ctx, gx + 3, gy - 3, 1, 4, "#1a1a1a");
+  // text lines (white bars)
+  prect(ctx, gx - 2, gy - 2, 5, 1, "#ffffff");
+}
+
+export function drawCameraProp(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 4, 4, 1, "rgba(0,0,0,0.4)");
+  // tripod legs
+  prect(ctx, gx - 2, gy + 1, 1, 4, "#1a1a1a");
+  prect(ctx, gx, gy + 1, 1, 4, "#1a1a1a");
+  prect(ctx, gx + 2, gy + 1, 1, 4, "#1a1a1a");
+  // camera body
+  prect(ctx, gx - 3, gy - 2, 7, 4, "#1a1a1a");
+  prect(ctx, gx - 3, gy - 2, 7, 1, "#3a3a44");
+  // lens
+  pcircle(ctx, gx + 1, gy, 2, "#3a3a44");
+  pset(ctx, gx + 1, gy, "#5aa6e8");
+  // top viewfinder
+  prect(ctx, gx - 1, gy - 4, 3, 2, "#3a3a44");
+  pset(ctx, gx, gy - 4, "#e23a3a"); // record dot
+}
+
+// ───────────── Barco pirata props ─────────────
+
+export function drawShipWheel(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pcircle(ctx, gx + 1, gy + 1, 6, "rgba(0,0,0,0.4)");
+  // outer ring brown
+  pcircle(ctx, gx, gy, 6, "#7a4a22");
+  pcircle(ctx, gx, gy, 5, "#a87a4a");
+  pcircle(ctx, gx, gy, 3, "#7a4a22");
+  // hub
+  pcircle(ctx, gx, gy, 2, "#3a2a14");
+  pset(ctx, gx, gy, "#f0c842");
+  // spokes / handles (8 directions)
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const sx = gx + Math.round(Math.cos(a) * 7);
+    const sy = gy + Math.round(Math.sin(a) * 7);
+    pset(ctx, sx, sy, "#5a3a1a");
+    const sx2 = gx + Math.round(Math.cos(a) * 8);
+    const sy2 = gy + Math.round(Math.sin(a) * 8);
+    pset(ctx, sx2, sy2, "#7a4a22");
+  }
+  // outline
+  for (let yy = -6; yy <= 6; yy++) {
+    for (let xx = -6; xx <= 6; xx++) {
+      const d2 = xx * xx + yy * yy;
+      if (d2 <= 36 && d2 > 25) pset(ctx, gx + xx, gy + yy, "#3a2a14");
+    }
+  }
+}
+
+export function drawCannon(ctx: Ctx, x: number, y: number, vertical: boolean = false) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx + 1, gy + 2, 5, 1, "rgba(0,0,0,0.4)");
+  if (vertical) {
+    // barrel pointing up/down
+    prect(ctx, gx - 2, gy - 4, 4, 8, "#3a3a3a");
+    prect(ctx, gx - 2, gy - 5, 4, 1, "#5a5a66");
+    pset(ctx, gx - 1, gy - 5, "#1a1a1a"); pset(ctx, gx, gy - 5, "#1a1a1a"); // bore
+    // wheels
+    prect(ctx, gx - 4, gy + 2, 2, 2, "#7a4a22");
+    prect(ctx, gx + 2, gy + 2, 2, 2, "#7a4a22");
+    pset(ctx, gx - 4, gy + 3, "#1a1a1a"); pset(ctx, gx + 3, gy + 3, "#1a1a1a");
+    // carriage
+    prect(ctx, gx - 3, gy + 2, 7, 2, "#7a4a22");
+  } else {
+    // horizontal
+    prect(ctx, gx - 4, gy - 2, 8, 4, "#3a3a3a");
+    prect(ctx, gx + 4, gy - 1, 2, 2, "#5a5a66");
+    pset(ctx, gx + 5, gy, "#1a1a1a"); // bore
+    pset(ctx, gx + 5, gy - 1, "#1a1a1a");
+    // wheels
+    prect(ctx, gx - 4, gy - 4, 2, 2, "#7a4a22");
+    prect(ctx, gx - 4, gy + 2, 2, 2, "#7a4a22");
+    // carriage
+    prect(ctx, gx - 4, gy - 2, 1, 4, "#5a3a1a");
+  }
+}
+
+export function drawTreasureChest(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 5, 7, 2, "rgba(0,0,0,0.4)");
+  // chest base
+  prect(ctx, gx - 6, gy - 1, 13, 6, "#7a4a22");
+  prect(ctx, gx - 6, gy - 1, 13, 1, "#5a3a1a");
+  prect(ctx, gx - 6, gy + 4, 13, 1, "#5a3a1a");
+  prect(ctx, gx - 6, gy - 1, 1, 6, "#3a2a14");
+  prect(ctx, gx + 6, gy - 1, 1, 6, "#3a2a14");
+  // gold bands
+  prect(ctx, gx - 6, gy + 1, 13, 1, "#f0c842");
+  // open lid (behind, going up)
+  prect(ctx, gx - 6, gy - 6, 13, 4, "#a87a4a");
+  prect(ctx, gx - 6, gy - 6, 13, 1, "#5a3a1a");
+  prect(ctx, gx - 6, gy - 6, 1, 4, "#5a3a1a");
+  prect(ctx, gx + 6, gy - 6, 1, 4, "#5a3a1a");
+  prect(ctx, gx - 6, gy - 4, 13, 1, "#f0c842");
+  // coins/gems inside
+  pset(ctx, gx - 4, gy, "#f0c842");
+  pset(ctx, gx - 2, gy + 1, "#f0c842");
+  pset(ctx, gx, gy, "#f0c842");
+  pset(ctx, gx + 2, gy + 1, "#f0c842");
+  pset(ctx, gx + 4, gy, "#f0c842");
+  pset(ctx, gx - 3, gy + 2, "#e23a3a"); // ruby
+  pset(ctx, gx + 1, gy + 2, "#3a78c9"); // sapphire
+  pset(ctx, gx + 4, gy + 2, "#3aa86a"); // emerald
+  // sparkle
+  pset(ctx, gx, gy - 2, "#ffffff");
+  pset(ctx, gx - 5, gy - 5, "#ffffff");
+}
+
+export function drawTreasureMap(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 3, 6, 1, "rgba(0,0,0,0.4)");
+  // table
+  prect(ctx, gx - 6, gy - 2, 13, 5, "#7a4a22");
+  prect(ctx, gx - 6, gy + 2, 13, 1, "#5a3a1a");
+  prect(ctx, gx - 7, gy + 3, 1, 2, "#3a2a14");
+  prect(ctx, gx + 6, gy + 3, 1, 2, "#3a2a14");
+  // map (parchment)
+  prect(ctx, gx - 5, gy - 3, 11, 5, "#e2c878");
+  prect(ctx, gx - 5, gy - 3, 11, 1, "#a87a4a");
+  prect(ctx, gx - 5, gy + 1, 11, 1, "#a87a4a");
+  prect(ctx, gx - 5, gy - 3, 1, 5, "#a87a4a");
+  prect(ctx, gx + 5, gy - 3, 1, 5, "#a87a4a");
+  // map lines (dotted)
+  pset(ctx, gx - 3, gy - 1, "#3a2a14");
+  pset(ctx, gx - 1, gy - 1, "#3a2a14");
+  pset(ctx, gx + 1, gy, "#3a2a14");
+  pset(ctx, gx + 3, gy, "#3a2a14");
+  // X marks the spot (red)
+  pset(ctx, gx + 3, gy - 2, "#e23a3a");
+  pset(ctx, gx + 4, gy - 1, "#e23a3a");
+  pset(ctx, gx + 3, gy, "#e23a3a");
+  pset(ctx, gx + 4, gy - 2, "#e23a3a");
+  pset(ctx, gx + 2, gy, "#e23a3a");
+}
+
+export function drawCaptain(ctx: Ctx, x: number, y: number) {
+  // Like drawPerson but with tricornio + parche + barba + chaqueta roja
+  const gcx = x / PX, gcy = y / PX;
+  const skin = "#f3c79a";
+  const coat = "#8a1a1a";
+  const coatTrim = "#f0c842";
+
+  pellipse(ctx, gcx, gcy + 9, 6, 2, "rgba(0,0,0,0.32)");
+  // legs (boots)
+  prect(ctx, gcx - 3, gcy + 4, 2, 4, "#3a2a14");
+  prect(ctx, gcx + 1, gcy + 4, 2, 4, "#3a2a14");
+  prect(ctx, gcx - 3, gcy + 8, 3, 1, "#1a1a1a");
+  prect(ctx, gcx + 1, gcy + 8, 3, 1, "#1a1a1a");
+  // coat
+  prect(ctx, gcx - 4, gcy - 2, 8, 5, coat);
+  prect(ctx, gcx - 4, gcy - 2, 8, 1, "#1a1a1a");
+  prect(ctx, gcx - 4, gcy + 2, 8, 1, "#1a1a1a");
+  prect(ctx, gcx - 4, gcy - 2, 1, 5, "#1a1a1a");
+  prect(ctx, gcx + 3, gcy - 2, 1, 5, "#1a1a1a");
+  // gold trim
+  prect(ctx, gcx - 4, gcy - 1, 8, 1, coatTrim);
+  // belt
+  prect(ctx, gcx - 4, gcy + 1, 8, 1, "#3a2a14");
+  pset(ctx, gcx, gcy + 1, coatTrim); // buckle
+  // arms
+  prect(ctx, gcx - 5, gcy - 1, 1, 4, coat);
+  prect(ctx, gcx + 4, gcy - 1, 1, 4, coat);
+  pset(ctx, gcx - 5, gcy + 3, skin);
+  pset(ctx, gcx + 4, gcy + 3, skin);
+  // head
+  pcircle(ctx, gcx, gcy - 4, 2, skin);
+  // beard black
+  prect(ctx, gcx - 2, gcy - 3, 5, 1, "#1a1a1a");
+  pset(ctx, gcx, gcy - 2, "#1a1a1a");
+  // eye + eye patch
+  pset(ctx, gcx + 1, gcy - 4, "#1a1a1a");
+  prect(ctx, gcx - 2, gcy - 4, 1, 1, "#1a1a1a"); // patch
+  prect(ctx, gcx - 3, gcy - 5, 4, 1, "#1a1a1a"); // patch strap
+  // tricornio (3-corner hat)
+  prect(ctx, gcx - 4, gcy - 7, 9, 2, "#1a1a1a");
+  pset(ctx, gcx - 4, gcy - 8, "#1a1a1a");
+  pset(ctx, gcx, gcy - 9, "#1a1a1a");
+  pset(ctx, gcx + 4, gcy - 8, "#1a1a1a");
+  // gold trim on hat
+  prect(ctx, gcx - 3, gcy - 6, 7, 1, "#f0c842");
+  // hook hand (right)
+  pset(ctx, gcx + 5, gcy + 3, "#bcbcc4");
+}
+
+export function drawParrot(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pset(ctx, gx, gy + 3, "rgba(0,0,0,0.3)");
+  // body red
+  prect(ctx, gx - 2, gy - 1, 4, 4, "#e23a3a");
+  prect(ctx, gx - 2, gy + 2, 4, 1, "#a82a2a");
+  // wing
+  prect(ctx, gx - 2, gy, 1, 2, "#3a78c9");
+  prect(ctx, gx + 1, gy, 1, 2, "#3aa86a");
+  // head
+  pcircle(ctx, gx - 2, gy - 2, 1, "#e23a3a");
+  pset(ctx, gx - 3, gy - 2, "#f0c842");
+  // beak
+  pset(ctx, gx - 4, gy - 1, "#f0c842");
+  pset(ctx, gx - 4, gy - 2, "#e8853a");
+  // eye
+  pset(ctx, gx - 2, gy - 2, "#1a1a1a");
+  // tail
+  pset(ctx, gx + 3, gy, "#3a78c9");
+  pset(ctx, gx + 3, gy + 1, "#3aa86a");
+  pset(ctx, gx + 4, gy, "#f0c842");
+  // feet
+  pset(ctx, gx - 1, gy + 3, "#7a4a22");
+  pset(ctx, gx + 1, gy + 3, "#7a4a22");
+}
+
+export function drawSkeleton(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx, gy + 4, 5, 1, "rgba(0,0,0,0.3)");
+  // skull top
+  pcircle(ctx, gx, gy - 3, 2, "#f0e8d8");
+  // eye sockets
+  pset(ctx, gx - 1, gy - 3, "#1a1a1a");
+  pset(ctx, gx + 1, gy - 3, "#1a1a1a");
+  // nose hole
+  pset(ctx, gx, gy - 2, "#1a1a1a");
+  // teeth
+  pset(ctx, gx - 1, gy - 1, "#1a1a1a");
+  pset(ctx, gx + 1, gy - 1, "#1a1a1a");
+  // ribcage (vertical bone)
+  prect(ctx, gx, gy, 1, 4, "#f0e8d8");
+  // ribs (horizontal)
+  prect(ctx, gx - 2, gy + 1, 5, 1, "#f0e8d8");
+  prect(ctx, gx - 2, gy + 3, 5, 1, "#f0e8d8");
+  // arms (sprawled out)
+  prect(ctx, gx - 5, gy + 1, 2, 1, "#f0e8d8");
+  prect(ctx, gx + 3, gy + 1, 2, 1, "#f0e8d8");
+  // hand bones
+  pset(ctx, gx - 5, gy, "#f0e8d8");
+  pset(ctx, gx + 5, gy, "#f0e8d8");
+  // pirate hat next to skeleton (fallen)
+  prect(ctx, gx - 3, gy - 5, 4, 1, "#1a1a1a");
+  pset(ctx, gx - 1, gy - 6, "#1a1a1a");
+}
+
+export function drawIsland(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  // sand mound
+  pellipse(ctx, gx, gy + 1, 8, 4, "#f0d68a");
+  pellipse(ctx, gx, gy, 7, 3, "#e8c878");
+  // palm trunk
+  prect(ctx, gx, gy - 6, 1, 6, "#7a4a22");
+  pset(ctx, gx - 1, gy - 4, "#5a3a1a");
+  // palm fronds
+  prect(ctx, gx - 4, gy - 7, 9, 1, "#3aa86a");
+  prect(ctx, gx - 3, gy - 8, 7, 1, "#3aa86a");
+  pset(ctx, gx - 4, gy - 8, "#2a7a3a");
+  pset(ctx, gx + 4, gy - 8, "#2a7a3a");
+  // coconut
+  pset(ctx, gx + 1, gy - 6, "#5a3a1a");
+}
+
+// ───────────── Parque acuático props ─────────────
+
+export function drawPool(ctx: Ctx, x: number, y: number, w: number, h: number) {
+  const gx = x / PX, gy = y / PX, gw = w / PX, gh = h / PX;
+  // tile deck (lighter)
+  prect(ctx, gx - 2, gy - 2, gw + 4, gh + 4, "#dcdce4");
+  // pool border
+  prect(ctx, gx, gy, gw, gh, "#3a3a44");
+  // water surface
+  prect(ctx, gx + 2, gy + 2, gw - 4, gh - 4, "#1a4a8a");
+  prect(ctx, gx + 2, gy + 2, gw - 4, Math.max(1, Math.floor(gh / 4)), "#2a6abf");
+  // water highlights (ripples)
+  for (let yy = gy + 4; yy < gy + gh - 4; yy += 3) {
+    for (let xx = gx + 4; xx < gx + gw - 4; xx += 3) {
+      if (((xx * 31 + yy * 17) & 7) === 0) pset(ctx, xx, yy, "#5aa6e8");
+      if (((xx * 13 + yy * 23) & 11) === 0) pset(ctx, xx, yy + 1, "#a8d8ff");
+    }
+  }
+  // lane lines (yellow stripes)
+  const lanes = 4;
+  for (let i = 1; i < lanes; i++) {
+    const ly = gy + Math.floor((gh * i) / lanes);
+    for (let xx = gx + 3; xx < gx + gw - 3; xx += 4) {
+      pset(ctx, xx, ly, "#f0c842");
+      pset(ctx, xx + 1, ly, "#ffffff");
+    }
+  }
+  // pool edge outline
+  prect(ctx, gx, gy, gw, 1, "#1a1a2a");
+  prect(ctx, gx, gy + gh - 1, gw, 1, "#1a1a2a");
+  prect(ctx, gx, gy, 1, gh, "#1a1a2a");
+  prect(ctx, gx + gw - 1, gy, 1, gh, "#1a1a2a");
+  // ladders (2 short marks at sides)
+  prect(ctx, gx + Math.floor(gw / 2) - 1, gy - 2, 2, 4, "#bcbcc4");
+  prect(ctx, gx + Math.floor(gw / 2) - 1, gy + gh - 2, 2, 4, "#bcbcc4");
+}
+
+export function drawSpiralSlide(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  // base shadow
+  pellipse(ctx, gx, gy + 22, 16, 3, "rgba(0,0,0,0.4)");
+  // tower (vertical structure)
+  prect(ctx, gx - 4, gy - 22, 8, 28, "#5a5a66");
+  prect(ctx, gx - 4, gy - 22, 8, 1, "#1a1a2a");
+  prect(ctx, gx - 4, gy + 6, 8, 1, "#1a1a2a");
+  prect(ctx, gx - 4, gy - 22, 1, 28, "#1a1a2a");
+  prect(ctx, gx + 3, gy - 22, 1, 28, "#1a1a2a");
+  // top platform (red)
+  prect(ctx, gx - 7, gy - 25, 14, 4, "#c83a3a");
+  prect(ctx, gx - 7, gy - 25, 14, 1, "#1a1a1a");
+  // railing
+  prect(ctx, gx - 7, gy - 27, 14, 1, "#bcbcc4");
+  pset(ctx, gx - 7, gy - 27, "#1a1a2a"); pset(ctx, gx + 6, gy - 27, "#1a1a2a");
+  // ladder rungs on tower
+  for (let i = 0; i < 7; i++) prect(ctx, gx - 5, gy - 20 + i * 4, 2, 1, "#3a3a44");
+
+  // Spiral chute — multiple concentric rings showing the slide wraps
+  const ringColors = ["#3a78c9", "#5aa6e8", "#7ec8e8"];
+  for (let i = 0; i < 3; i++) {
+    const rOuter = 12 + i * 4;
+    const rInner = 9 + i * 4;
+    const baseY = gy - 12 + i * 7;
+    // arc ring (open on right where chute exits)
+    for (let ang = Math.PI * 0.2; ang < Math.PI * 2.0; ang += 0.18) {
+      const bx = gx + Math.round(Math.cos(ang) * rOuter * 0.8);
+      const by = baseY + Math.round(Math.sin(ang) * rOuter * 0.35);
+      pset(ctx, bx, by, ringColors[i % ringColors.length]);
+    }
+    // inner edge (chute wall)
+    for (let ang = Math.PI * 0.2; ang < Math.PI * 2.0; ang += 0.22) {
+      const bx = gx + Math.round(Math.cos(ang) * rInner * 0.8);
+      const by = baseY + Math.round(Math.sin(ang) * rInner * 0.35);
+      pset(ctx, bx, by, "#1a1a2a");
+    }
+    void rInner;
+  }
+  // Exit chute (straight piece bottom)
+  prect(ctx, gx - 14, gy + 6, 12, 4, "#5aa6e8");
+  prect(ctx, gx - 14, gy + 6, 12, 1, "#1a1a2a");
+  prect(ctx, gx - 14, gy + 9, 12, 1, "#1a1a2a");
+  // splash pool small
+  pellipse(ctx, gx - 18, gy + 12, 8, 3, "#1a4a8a");
+  pellipse(ctx, gx - 18, gy + 12, 7, 2, "#3a78c9");
+  // splash
+  pset(ctx, gx - 22, gy + 10, "#fff");
+  pset(ctx, gx - 20, gy + 9, "#fff");
+  pset(ctx, gx - 14, gy + 11, "#fff");
+}
+
+export function drawSunbed(ctx: Ctx, x: number, y: number, color: string) {
+  const gx = x / PX, gy = y / PX;
+  // shadow
+  prect(ctx, gx - 5, gy + 5, 12, 1, "rgba(0,0,0,0.3)");
+  // frame
+  prect(ctx, gx - 6, gy - 5, 13, 10, "#5a3a3a");
+  // cushion
+  prect(ctx, gx - 5, gy - 4, 11, 8, color);
+  // pillow at head
+  prect(ctx, gx - 5, gy - 4, 11, 2, "#ffffff");
+  // stripes on cushion
+  prect(ctx, gx - 5, gy - 1, 11, 1, "rgba(0,0,0,0.18)");
+  prect(ctx, gx - 5, gy + 2, 11, 1, "rgba(0,0,0,0.18)");
+  // outline
+  prect(ctx, gx - 6, gy - 5, 13, 1, "#1a1a1a");
+  prect(ctx, gx - 6, gy + 4, 13, 1, "#1a1a1a");
+  // legs
+  pset(ctx, gx - 5, gy + 5, "#3a3a44");
+  pset(ctx, gx + 5, gy + 5, "#3a3a44");
+}
+
+export function drawPlasticTable(ctx: Ctx, x: number, y: number) {
+  const gx = x / PX, gy = y / PX;
+  pellipse(ctx, gx + 1, gy + 1, 6, 5, "rgba(0,0,0,0.3)");
+  // table top (round white)
+  pcircle(ctx, gx, gy, 5, "#ffffff");
+  pcircle(ctx, gx, gy, 4, "#dcdce4");
+  // hole in middle (for umbrella)
+  pset(ctx, gx, gy, "#3a3a44");
+  // 4 chairs around
+  pset(ctx, gx - 6, gy, "#3a78c9"); pset(ctx, gx - 7, gy, "#3a78c9");
+  pset(ctx, gx + 6, gy, "#3a78c9"); pset(ctx, gx + 7, gy, "#3a78c9");
+  pset(ctx, gx, gy - 6, "#3a78c9"); pset(ctx, gx, gy - 7, "#3a78c9");
+  pset(ctx, gx, gy + 6, "#3a78c9"); pset(ctx, gx, gy + 7, "#3a78c9");
+  // outline
+  for (let yy = -5; yy <= 5; yy++) {
+    for (let xx = -5; xx <= 5; xx++) {
+      const d2 = xx * xx + yy * yy;
+      if (d2 <= 25 && d2 > 16) pset(ctx, gx + xx, gy + yy, "#1a1a1a");
+    }
+  }
+}
+
+export function drawSnackBar(ctx: Ctx, x: number, y: number, w: number, h: number) {
+  const gx = x / PX, gy = y / PX, gw = w / PX, gh = h / PX;
+  prect(ctx, gx + 1, gy + 1, gw, gh, "rgba(0,0,0,0.35)");
+  // counter body (brown wood)
+  prect(ctx, gx, gy + 4, gw, gh - 4, "#a87a4a");
+  // counter top
+  prect(ctx, gx, gy + 4, gw, 2, "#7a4a22");
+  // striped awning (red/white)
+  for (let i = 0; i < gw; i += 2) {
+    prect(ctx, gx + i, gy, 1, 4, i % 4 === 0 ? "#ffffff" : "#e23a3a");
+  }
+  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
+  // outline
+  prect(ctx, gx, gy + gh - 1, gw, 1, "#1a1a1a");
+  prect(ctx, gx, gy, 1, gh, "#1a1a1a");
+  prect(ctx, gx + gw - 1, gy, 1, gh, "#1a1a1a");
+  // food items on counter
+  pset(ctx, gx + 4, gy + 6, "#f0c842"); // hot dog
+  prect(ctx, gx + 3, gy + 6, 3, 1, "#f0c842");
+  pset(ctx, gx + 8, gy + 6, "#e23a3a"); // soda cup
+  pset(ctx, gx + 8, gy + 7, "#3a3a44");
+  pset(ctx, gx + 12, gy + 6, "#f8d8b0"); // popcorn box
+  pset(ctx, gx + 12, gy + 7, "#e23a3a");
+  // sign / menu
+  prect(ctx, gx + Math.floor(gw / 2) - 4, gy - 4, 9, 3, "#3aa86a");
+  prect(ctx, gx + Math.floor(gw / 2) - 4, gy - 4, 9, 1, "#1a1a1a");
+  prect(ctx, gx + Math.floor(gw / 2) - 4, gy - 2, 9, 1, "#1a1a1a");
+  // person inside / cashier hint (head behind counter)
+  pset(ctx, gx + Math.floor(gw / 2), gy + 2, "#f3c79a");
+  pset(ctx, gx + Math.floor(gw / 2) + 1, gy + 2, "#f3c79a");
+}
+
 // ───────────── Jungla props ─────────────
 
 export function drawJungleTreeTrunk(ctx: Ctx, x: number, y: number) {

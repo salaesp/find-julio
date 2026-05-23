@@ -72,13 +72,16 @@ function buildScene(): JungleScene {
     { x: 280, y: 740, h: 50 },
   ];
 
-  // Animals
+  // Animals — más densos
   const animals: Animal[] = [
-    // tigers (in clearings)
+    // tigers (clearings y bordes río)
     { x: 130, y: 220, kind: "tiger" },
     { x: 360, y: 360, kind: "tiger" },
     { x: 130, y: 700, kind: "tiger" },
-    // monkeys (hanging on vines)
+    { x: 300, y: 220, kind: "tiger" },
+    { x: 60, y: 380, kind: "tiger" },
+    { x: 290, y: 720, kind: "tiger" },
+    // monkeys (colgando de canopies + tierra)
     { x: 80, y: 200, kind: "monkey" },
     { x: 230, y: 200, kind: "monkey" },
     { x: 200, y: 350, kind: "monkey" },
@@ -86,10 +89,24 @@ function buildScene(): JungleScene {
     { x: 80, y: 650, kind: "monkey" },
     { x: 220, y: 690, kind: "monkey" },
     { x: 360, y: 650, kind: "monkey" },
-    // elephants (big, in open spots)
+    { x: 150, y: 130, kind: "monkey" },
+    { x: 280, y: 140, kind: "monkey" },
+    { x: 380, y: 130, kind: "monkey" },
+    { x: 110, y: 380, kind: "monkey" },
+    { x: 260, y: 360, kind: "monkey" },
+    { x: 410, y: 360, kind: "monkey" },
+    { x: 60, y: 600, kind: "monkey" },
+    { x: 150, y: 640, kind: "monkey" },
+    { x: 310, y: 690, kind: "monkey" },
+    { x: 420, y: 700, kind: "monkey" },
+    { x: 380, y: 730, kind: "monkey" },
+    // elephants (manada)
     { x: 250, y: 250, kind: "elephant" },
     { x: 130, y: 540, kind: "elephant" },
     { x: 390, y: 540, kind: "elephant" },
+    { x: 230, y: 580, kind: "elephant" },
+    { x: 80, y: 470, kind: "elephant" },
+    { x: 320, y: 470, kind: "elephant" },
   ];
 
   return { trees, vines, animals, river, waterfall };
