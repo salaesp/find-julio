@@ -7,14 +7,14 @@ import {
   SPRITE_SIZE,
 } from "./characters/sprites";
 import { getAccent } from "./worlds/accents";
-import { JulioHeadIcon, MagnifierIcon, PieProgress } from "./HudIcons";
+import { JulioHeadIcon, MagnifierIcon, PieProgress, HomeIcon } from "./HudIcons";
 
 const HIT_RADIUS = SPRITE_SIZE * 0.4;
 
 type WrongMark = { id: number; x: number; y: number; t: number };
 type HeartParticle = { id: number; x: number; y: number; vx: number; vy: number; t: number };
 
-export default function GameCanvas({ startWorld }: { startWorld?: number }) {
+export default function GameCanvas({ startWorld, onExit }: { startWorld?: number; onExit?: () => void }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -285,6 +285,16 @@ export default function GameCanvas({ startWorld }: { startWorld?: number }) {
   return (
     <div className={styles.root} ref={rootRef}>
       <div className={styles.hud} style={{ "--accent": accent } as React.CSSProperties}>
+        {onExit && (
+          <button
+            className={styles.homeBtn}
+            onClick={onExit}
+            aria-label="Volver al menú principal"
+            title="Volver al menú"
+          >
+            <HomeIcon />
+          </button>
+        )}
         <div className={styles.titleBlock}>
           <div className={styles.levelName} key={state.world}>
             {state.worldModule.title.toUpperCase()}

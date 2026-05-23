@@ -7,6 +7,6 @@ export default function Page() {
   const [started, setStarted] = useState(false);
   const [startWorld, setStartWorld] = useState<number | undefined>(undefined);
   return started
-    ? <GameCanvas startWorld={startWorld} />
+    ? <GameCanvas startWorld={startWorld} onExit={() => { setStartWorld(undefined); setStarted(false); }} />
     : <WelcomeScreen onStart={(w) => { setStartWorld(w); setStarted(true); }} />;
 }

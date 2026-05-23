@@ -123,3 +123,31 @@ export function MagnifierIcon({ used, danger }: { used: boolean; danger: boolean
     </Grid>
   );
 }
+
+// Pixel-art house icon for the "back to home" HUD button. 9x9 grid.
+export function HomeIcon() {
+  const outline = "#1a1a1a";
+  const roof = "#e23a3a";
+  const wall = "#ffe066";
+  const door = "#1a1a1a";
+
+  const pixels: [number, number, string][] = [
+    // roof
+    [4, 0, outline],
+    [3, 1, outline], [4, 1, roof], [5, 1, outline],
+    [2, 2, outline], [3, 2, roof], [4, 2, roof], [5, 2, roof], [6, 2, outline],
+    [1, 3, outline], [2, 3, roof], [3, 3, roof], [4, 3, roof], [5, 3, roof], [6, 3, roof], [7, 3, outline],
+    [0, 4, outline], [1, 4, roof], [2, 4, roof], [3, 4, roof], [4, 4, roof], [5, 4, roof], [6, 4, roof], [7, 4, roof], [8, 4, outline],
+    // walls + door
+    [1, 5, outline], [2, 5, wall], [3, 5, wall], [4, 5, wall], [5, 5, wall], [6, 5, wall], [7, 5, outline],
+    [1, 6, outline], [2, 6, wall], [3, 6, door], [4, 6, door], [5, 6, wall], [6, 6, wall], [7, 6, outline],
+    [1, 7, outline], [2, 7, wall], [3, 7, door], [4, 7, door], [5, 7, wall], [6, 7, wall], [7, 7, outline],
+    [1, 8, outline], [2, 8, outline], [3, 8, outline], [4, 8, outline], [5, 8, outline], [6, 8, outline], [7, 8, outline],
+  ];
+
+  return (
+    <Grid size={9}>
+      {pixels.map(([x, y, c], i) => px(x, y, c, i))}
+    </Grid>
+  );
+}
