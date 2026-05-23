@@ -948,46 +948,156 @@ export function drawSalePoster(ctx: Ctx, x: number, y: number) {
 
 // ───────────── Farm props (top-down) ─────────────
 
+// GBA-style barn — saturated red with darker roof band, white cross trim,
+// double doors at the front and a hayloft window. Slight angled feel.
 export function drawBarn(ctx: Ctx, x: number, y: number, w: number, h: number) {
   const gx = x / PX, gy = y / PX, gw = w / PX, gh = h / PX;
+  const OUTLINE = "#1a1a1a";
+  const RED = "#d8403a";
+  const RED_DARK = "#8a1a1a";
+  const RED_LIGHT = "#f8604a";
+  const WHITE = "#ffffff";
+
   prect(ctx, gx + 2, gy + 2, gw, gh, "rgba(0,0,0,0.35)");
-  prect(ctx, gx, gy, gw, gh, "#c83a3a");
-  // roof gable lines down middle
-  prect(ctx, gx + Math.floor(gw / 2), gy, 1, gh, "#8a1a1a");
-  // white trim cross (barn doors visible from top)
-  prect(ctx, gx + 4, gy + Math.floor(gh / 2) - 2, gw - 8, 1, "#ffffff");
-  prect(ctx, gx + Math.floor(gw / 2) - 4, gy + 4, 1, gh - 8, "#ffffff");
-  prect(ctx, gx + Math.floor(gw / 2) + 3, gy + 4, 1, gh - 8, "#ffffff");
-  // hayloft window
-  prect(ctx, gx + Math.floor(gw / 2) - 2, gy + 2, 4, 3, "#3a2a1a");
-  prect(ctx, gx + Math.floor(gw / 2) - 2, gy + 2, 4, 1, "#1a1a1a");
-  // outline
-  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
-  prect(ctx, gx, gy + gh - 1, gw, 1, "#1a1a1a");
-  prect(ctx, gx, gy, 1, gh, "#1a1a1a");
-  prect(ctx, gx + gw - 1, gy, 1, gh, "#1a1a1a");
-  // weather vane (rooster shape pixel)
-  pset(ctx, gx + Math.floor(gw / 2), gy - 2, "#1a1a1a");
-  pset(ctx, gx + Math.floor(gw / 2) + 1, gy - 2, "#1a1a1a");
+
+  // ── Roof band (top portion, slightly darker) ──
+  const roofH = Math.max(3, Math.floor(gh * 0.3));
+  prect(ctx, gx, gy, gw, gh, RED);
+  prect(ctx, gx, gy, gw, roofH, RED_DARK);
+  // bright ridge highlight
+  prect(ctx, gx + 1, gy + 1, gw - 2, 1, RED_LIGHT);
+  // shingle stripes on roof
+  for (let yy = gy + 2; yy < gy + roofH; yy += 2) {
+    prect(ctx, gx + 1, yy, gw - 2, 1, "#6a1212");
+  }
+  // hayloft window inset into roof
+  const lhw = 4, lhh = roofH - 2;
+  const lhx = gx + Math.floor(gw / 2) - 2;
+  const lhy = gy + 1;
+  if (lhh >= 1) {
+    prect(ctx, lhx, lhy, lhw, lhh, "#2a1a14");
+    prect(ctx, lhx, lhy, lhw, 1, OUTLINE);
+    prect(ctx, lhx, lhy + lhh, lhw, 1, OUTLINE);
+    prect(ctx, lhx, lhy, 1, lhh, OUTLINE);
+    prect(ctx, lhx + lhw - 1, lhy, 1, lhh, OUTLINE);
+    // window cross
+    pset(ctx, lhx + 1, lhy, OUTLINE);
+    pset(ctx, lhx + 2, lhy, OUTLINE);
+  }
+
+  // ── Double barn doors (centered, bottom) ──
+  const dw = 6, dh = Math.max(4, gh - roofH - 2);
+  const ddx = gx + Math.floor(gw / 2) - 3;
+  const ddy = gy + gh - dh - 1;
+  prect(ctx, ddx, ddy, dw, dh, "#6a2a1a");
+  // door cross trim (white X)
+  prect(ctx, ddx, ddy + Math.floor(dh / 2), dw, 1, WHITE);
+  prect(ctx, ddx + Math.floor(dw / 2) - 1, ddy, 1, dh, WHITE);
+  // door split (vertical line down middle)
+  prect(ctx, ddx + Math.floor(dw / 2), ddy, 1, dh, OUTLINE);
+  // door outline
+  prect(ctx, ddx, ddy, dw, 1, OUTLINE);
+  prect(ctx, ddx, ddy, 1, dh, OUTLINE);
+  prect(ctx, ddx + dw - 1, ddy, 1, dh, OUTLINE);
+
+  // ── White trim around walls ──
+  prect(ctx, gx + 1, gy + roofH, gw - 2, 1, WHITE);
+
+  // ── Outline ──
+  prect(ctx, gx, gy, gw, 1, OUTLINE);
+  prect(ctx, gx, gy + gh - 1, gw, 1, OUTLINE);
+  prect(ctx, gx, gy, 1, gh, OUTLINE);
+  prect(ctx, gx + gw - 1, gy, 1, gh, OUTLINE);
+
+  // ── Weather vane (rooster + arrow) ──
+  prect(ctx, gx + Math.floor(gw / 2), gy - 4, 1, 4, "#3a2a1a");
+  pset(ctx, gx + Math.floor(gw / 2) - 1, gy - 4, "#3a2a1a");
+  pset(ctx, gx + Math.floor(gw / 2) + 1, gy - 4, "#3a2a1a");
+  pset(ctx, gx + Math.floor(gw / 2) - 2, gy - 4, "#f4d24a");
+  pset(ctx, gx + Math.floor(gw / 2) + 2, gy - 4, "#f4d24a");
 }
 
+// GBA-style farmhouse — wood walls with a tall sloped red shingle roof
+// and a small blue door + window. Reads like a Pokémon route cottage
+// from a slightly angled top-down view.
 export function drawFarmhouse(ctx: Ctx, x: number, y: number, w: number, h: number) {
   const gx = x / PX, gy = y / PX, gw = w / PX, gh = h / PX;
+  const OUTLINE = "#1a1a1a";
+  const ROOF = "#c8482a";
+  const ROOF_DARK = "#8a2a1a";
+  const ROOF_LIGHT = "#e8704a";
+  const WALL = "#e8c89a";
+  const WALL_SHADE = "#b89464";
+  const DOOR = "#2a6abf";
+  const DOOR_DARK = "#1a4a8a";
+  const WIN = "#a8d8ff";
+
   prect(ctx, gx + 2, gy + 2, gw, gh, "rgba(0,0,0,0.3)");
-  // roof brown
-  prect(ctx, gx, gy, gw, gh, "#7a4a22");
-  // roof shingles
-  for (let yy = gy + 2; yy < gy + gh - 1; yy += 3) {
-    prect(ctx, gx + 1, yy, gw - 2, 1, "#5a3a1a");
+
+  // ── Roof — slightly larger than walls, with shingle bands ──
+  const roofH = Math.max(4, Math.floor(gh * 0.45));
+  prect(ctx, gx, gy, gw, roofH, ROOF);
+  // bright top band (light catches the ridge)
+  prect(ctx, gx + 1, gy + 1, gw - 2, 1, ROOF_LIGHT);
+  // darker shingle bands
+  for (let yy = gy + 3; yy < gy + roofH; yy += 2) {
+    prect(ctx, gx, yy, gw, 1, ROOF_DARK);
   }
-  // chimney
-  prect(ctx, gx + 2, gy - 3, 3, 4, "#5a3a3a");
-  prect(ctx, gx + 2, gy - 3, 3, 1, "#3a2a2a");
-  // outline
-  prect(ctx, gx, gy, gw, 1, "#1a1a1a");
-  prect(ctx, gx, gy + gh - 1, gw, 1, "#1a1a1a");
-  prect(ctx, gx, gy, 1, gh, "#1a1a1a");
-  prect(ctx, gx + gw - 1, gy, 1, gh, "#1a1a1a");
+  // roof outline
+  prect(ctx, gx, gy, gw, 1, OUTLINE);
+  prect(ctx, gx, gy, 1, roofH, OUTLINE);
+  prect(ctx, gx + gw - 1, gy, 1, roofH, OUTLINE);
+  prect(ctx, gx, gy + roofH, gw, 1, OUTLINE);
+
+  // ── Wall body ──
+  const wallY = gy + roofH + 1;
+  const wallH = gh - roofH - 1;
+  prect(ctx, gx + 1, wallY, gw - 2, wallH, WALL);
+  // right wall shade
+  prect(ctx, gx + gw - 2, wallY, 1, wallH, WALL_SHADE);
+  // outline walls
+  prect(ctx, gx, wallY, 1, wallH, OUTLINE);
+  prect(ctx, gx + gw - 1, wallY, 1, wallH, OUTLINE);
+  prect(ctx, gx, wallY + wallH - 1, gw, 1, OUTLINE);
+
+  // ── Door (centered) ──
+  const dw = 3;
+  const dh = Math.max(3, wallH - 2);
+  const dx = gx + Math.floor(gw / 2) - 1;
+  const dy = wallY + (wallH - dh);
+  prect(ctx, dx, dy, dw, dh, DOOR);
+  prect(ctx, dx, dy, 1, dh, DOOR_DARK);
+  prect(ctx, dx, dy, dw, 1, OUTLINE);
+  prect(ctx, dx - 1, dy, 1, dh, OUTLINE);
+  prect(ctx, dx + dw, dy, 1, dh, OUTLINE);
+  // door knob
+  pset(ctx, dx + dw - 1, dy + Math.floor(dh / 2), "#f4d24a");
+
+  // ── Windows (flanking the door) ──
+  if (gw >= 12) {
+    const wy = wallY + 1;
+    prect(ctx, gx + 2, wy, 2, 2, WIN);
+    prect(ctx, gx + gw - 4, wy, 2, 2, WIN);
+    // window frames
+    prect(ctx, gx + 2, wy, 2, 1, OUTLINE);
+    prect(ctx, gx + 2, wy + 2, 2, 1, OUTLINE);
+    prect(ctx, gx + 1, wy, 1, 2, OUTLINE);
+    prect(ctx, gx + 4, wy, 1, 2, OUTLINE);
+    prect(ctx, gx + gw - 4, wy, 2, 1, OUTLINE);
+    prect(ctx, gx + gw - 4, wy + 2, 2, 1, OUTLINE);
+    prect(ctx, gx + gw - 5, wy, 1, 2, OUTLINE);
+    prect(ctx, gx + gw - 2, wy, 1, 2, OUTLINE);
+  }
+
+  // ── Chimney (with little smoke puff) ──
+  prect(ctx, gx + gw - 5, gy - 3, 2, 4, "#7a4a3a");
+  prect(ctx, gx + gw - 5, gy - 3, 2, 1, OUTLINE);
+  prect(ctx, gx + gw - 6, gy - 3, 1, 4, OUTLINE);
+  prect(ctx, gx + gw - 3, gy - 3, 1, 4, OUTLINE);
+  // smoke
+  pset(ctx, gx + gw - 4, gy - 5, "#dcdce4");
+  pset(ctx, gx + gw - 3, gy - 6, "#dcdce4");
+  pset(ctx, gx + gw - 4, gy - 7, "#dcdce4");
 }
 
 export function drawFenceH(ctx: Ctx, x: number, y: number, w: number) {

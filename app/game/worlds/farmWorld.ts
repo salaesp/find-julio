@@ -6,7 +6,7 @@ import {
   drawTractor, drawHayBale, drawCropRow, drawPond,
   drawWindmill, drawScarecrow,
 } from "../characters/sprites";
-import { drawGbaGrass } from "./gbaStyle";
+import { drawGbaGrass, drawGbaWildFlowers } from "./gbaStyle";
 import type { NpcPos, Placement, WorldModule } from "./types";
 
 export const WIDTH = 480;
@@ -181,13 +181,8 @@ function renderBackground(ctx: CanvasRenderingContext2D, _scene: unknown, _time:
     light: "#a8e078",
     tuft: "#4a9438",
   });
-  // tiny dandelions on top of grass
-  ctx.fillStyle = "#f4d24a";
-  for (let x = 5; x < WIDTH; x += 35) {
-    for (let y = 5; y < HEIGHT; y += 35) {
-      if (((x * 41 + y * 19) & 15) === 0) ctx.fillRect(x, y, 2, 2);
-    }
-  }
+  // wild flower patches scattered through the grass
+  drawGbaWildFlowers(ctx, WIDTH, HEIGHT, 0.6);
   // Dirt paths (farm tone)
   for (const p of scene.paths) {
     ctx.fillStyle = "#a87a4a";

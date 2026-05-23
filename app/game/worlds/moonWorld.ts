@@ -7,7 +7,7 @@ import {
   drawPath, drawSandbox, drawFlowerbed,
   drawSlide, drawSwingSet, drawCarousel, drawSeesaw,
 } from "../characters/sprites";
-import { drawGbaGrass } from "./gbaStyle";
+import { drawGbaGrass, drawGbaWildFlowers } from "./gbaStyle";
 import type { WorldModule } from "./types";
 
 export const WORLD_WIDTH = 480;
@@ -164,6 +164,7 @@ export function placeCharacters(seed: number, scene: Scene): Placement {
 
 function renderBackground(ctx: CanvasRenderingContext2D, _scene: unknown, _time: number) {
   drawGbaGrass(ctx, WORLD_WIDTH, WORLD_HEIGHT);
+  drawGbaWildFlowers(ctx, WORLD_WIDTH, WORLD_HEIGHT, 0.8);
 }
 
 function renderUnder(ctx: CanvasRenderingContext2D, _scene: unknown, _time: number) {

@@ -63,31 +63,70 @@ export function drawGbaGrass(
     }
   }
 
-  // Tuft clusters — small 2x2 darker green patches.
-  const stepT = Math.max(14, Math.floor(20 / density));
+  // Grass "v-tufts" — three pixels arranged in a small V/triangle that
+  // reads as a single blade cluster from a distance. This is the iconic
+  // Hoenn route texture.
+  const stepT = Math.max(10, Math.floor(14 / density));
   for (let y = 4; y < h; y += stepT) {
     for (let x = 4; x < w; x += stepT) {
       const k = (x * 31 + y * 17) >>> 0;
-      if ((k & 7) === 0) {
+      if ((k & 3) === 0) {
         ctx.fillStyle = tuft;
-        ctx.fillRect(x, y, 2, 2);
-        ctx.fillRect(x + 2, y + 1, 1, 1);
-        ctx.fillStyle = dark;
+        // V shape
+        ctx.fillRect(x, y, 1, 2);
+        ctx.fillRect(x + 2, y, 1, 2);
         ctx.fillRect(x + 1, y + 2, 1, 1);
+        ctx.fillStyle = dark;
+        // base shadow pixel
+        ctx.fillRect(x + 1, y + 3, 1, 1);
+      } else if ((k & 7) === 4) {
+        // single short blade
+        ctx.fillStyle = tuft;
+        ctx.fillRect(x, y, 1, 1);
+        ctx.fillRect(x + 1, y + 1, 1, 1);
       }
     }
   }
 
-  // Light tufts — small light-green highlights on top of base.
-  const stepL = Math.max(20, Math.floor(28 / density));
+  // Light tufts — bright blade highlights to catch sun.
+  const stepL = Math.max(18, Math.floor(22 / density));
   for (let y = 9; y < h; y += stepL) {
     for (let x = 11; x < w; x += stepL) {
       const k = (x * 13 + y * 23) >>> 0;
       if ((k & 7) === 0) {
         ctx.fillStyle = light;
-        ctx.fillRect(x, y, 2, 1);
+        ctx.fillRect(x, y, 1, 1);
         ctx.fillRect(x + 1, y - 1, 1, 1);
+        ctx.fillRect(x + 2, y, 1, 1);
       }
+    }
+  }
+}
+
+/** Scatter tiny red "wild flower" dots over a grass area — matches the
+ *  patches of red flowers you see on most Pokémon GBA outdoor maps. */
+export function drawGbaWildFlowers(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  density: number = 1,
+) {
+  const step = Math.max(28, Math.floor(36 / density));
+  for (let y = 14; y < h; y += step) {
+    for (let x = 18; x < w; x += step) {
+      const k = (x * 41 + y * 19) >>> 0;
+      if ((k & 7) !== 0) continue;
+      // alternate red and yellow patches
+      const useYellow = (k & 8) === 0;
+      const petal = useYellow ? "#f4d24a" : "#e23a4a";
+      const dark = useYellow ? "#b8902a" : "#a82838";
+      // 3-petal cluster
+      ctx.fillStyle = petal;
+      ctx.fillRect(x, y, 1, 1);
+      ctx.fillRect(x - 1, y + 1, 1, 1);
+      ctx.fillRect(x + 1, y + 1, 1, 1);
+      ctx.fillStyle = dark;
+      ctx.fillRect(x, y + 1, 1, 1);
     }
   }
 }
