@@ -14,6 +14,7 @@ type HeartParticle = { id: number; x: number; y: number; vx: number; vy: number;
 
 export default function GameCanvas() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [viewport, setViewport] = useState({ w: 1280, h: 720 });
   const { state, registerFind, registerWrong, nextWorld } = useGameState();
@@ -32,13 +33,18 @@ export default function GameCanvas() {
 
   useEffect(() => {
     const onResize = () => {
-      const el = rootRef.current;
+      const el = stageRef.current;
       if (!el) return;
       setViewport({ w: el.clientWidth, h: el.clientHeight });
     };
     onResize();
+    const ro = new ResizeObserver(onResize);
+    if (stageRef.current) ro.observe(stageRef.current);
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -230,7 +236,7 @@ export default function GameCanvas() {
   }, [viewport, state.placement, state.phase, state.scene, state.worldModule, W, H, state.nextPlacement]);
 
   const pointerToWorld = (clientX: number, clientY: number) => {
-    const el = rootRef.current!;
+    const el = stageRef.current!;
     const rect = el.getBoundingClientRect();
     const px = clientX - rect.left;
     const py = clientY - rect.top;
@@ -257,11 +263,6 @@ export default function GameCanvas() {
 
   return (
     <div className={styles.root} ref={rootRef}>
-      <canvas
-        ref={canvasRef}
-        className={styles.canvas}
-        onPointerDown={onPointerDown}
-      />
       <div className={styles.hud}>
         <div className={styles.title}>
           ¿Dónde está Julio?
@@ -279,6 +280,13 @@ export default function GameCanvas() {
             </div>
           </div>
         </div>
+      </div>
+      <div className={styles.stage} ref={stageRef}>
+        <canvas
+          ref={canvasRef}
+          className={styles.canvas}
+          onPointerDown={onPointerDown}
+        />
       </div>
 
       {state.phase === "world_complete" && (
